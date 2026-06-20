@@ -26,14 +26,16 @@ const SPEED = 120;
 
 // Set Kaplay's global gravity
 setGravity(GRAVITY);
+loadRoot("/assets/");
 
 // Define the exact order of bananas the player must eat
 const PHASE_ORDER = ["blue", "green", "brown"];
 const BANANAS_PER_PHASE = 5;
 
+
 // Sprites
 // Load the entire sheet and slice it into named sprites
-loadSpriteAtlas("sprites/bananas.png", {
+loadSpriteAtlas("bananas.png", {
     "banana-blue": {
         x: 0,         // Top row, first frame
         y: 16,
@@ -67,7 +69,7 @@ loadSpriteAtlas("sprites/bananas.png", {
     // Note: Row 4 (y: 48) is free for an extra color if you need it later!
 });
 
-loadSpriteAtlas("sprites/fish-temp.png", {
+loadSpriteAtlas("fish-temp.png", {
     "fish": {
         x: 16,         // Top row, first frame
         y: 0,
