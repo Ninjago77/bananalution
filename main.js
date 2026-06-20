@@ -1,9 +1,5 @@
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 
-const GAME_WIDTH = 640;
-const GAME_HEIGHT = 320;
-
-// The dimensions of an individual screen quadrant
 const VIEW_WIDTH = 320;
 const VIEW_HEIGHT = 160;
 
@@ -14,249 +10,269 @@ const dynamicScale = Math.min(scaleX, scaleY);
 kaplay({
     width: VIEW_WIDTH,
     height: VIEW_HEIGHT,
-    background: "#6695ff",
     scale: dynamicScale,
+    background: "#000000",
     canvas: document.getElementById("canvas")
 });
 
-// --- GAME LOGIC & CONSTANTS ---
-const GRAVITY = 800;
-const JUMP_FORCE = 300;
-const SPEED = 120;
-
-// Set Kaplay's global gravity
-setGravity(GRAVITY);
 loadRoot("/assets/");
 
-// Define the exact order of bananas the player must eat
-const PHASE_ORDER = ["blue", "green", "brown"];
-const BANANAS_PER_PHASE = 5;
+// --- DICTIONARIES ---
+const FORM_NAMES = {
+    "fish1": "Tadpole", "fish2": "Minnow", "fish3": "Goldfish", "fish4": "Bass",
+    "shark1": "Baby Shark", "shark2": "Tiger Shark", "shark3": "Great White", "shark4": "Megalodon",
+};
 
+const BANANA_NAMES = {
+    1: "Blue Banana", 2: "Green Banana", 3: "Brown Banana", 4: "Golden Banana"
+};
 
-// Sprites
-// Load the entire sheet and slice it into named sprites
+// --- SPRITE LOADING ---
 loadSpriteAtlas("bananas.png", Object.fromEntries(
     Array.from({ length: 4 }, (_, i) => [
         `banana${i + 1}`, 
-        {
-            x: 0,
-            y: i * 16,        // Dynamically calculates 0, 16, 32, 48
-            width: 32,
-            height: 16,
-            sliceX: 2,
-            anims: {
-                idle: { from: 0, to: 1, loop: true, speed: 4 }
-            }
-        }
+        { x: 0, y: i * 16, width: 32, height: 16, sliceX: 2, anims: { idle: { from: 0, to: 1, loop: true, speed: 4 } } }
     ])
 ));
 
-loadSpriteAtlas("fishes.png", Object.fromEntries(
-    Array.from({ length: 4 }, (_, i) => [
-        `banana${i + 1}`, 
-        {
-            y: 0,
-            x: i * 16,        // Dynamically calculates 0, 16, 32, 48
-            width: 16,
-            height: 64,
-            sliceX: 4,
-            anims: {
-                idle: { from: 0, to: 3, loop: true, speed: 4 }
-            }
-        }
-    ])
-));
+[
+    ["fish", 1, 1], ["shark", 2, 1], ["lizard", 1, 1], 
+    ["dinosaur", 1, 2], ["monkey", 1, 2], ["hackcluborg", 1, 3]
+].forEach(([name, wMult, hMult]) => {
+    const sliceWidth = wMult * 16;
+    const sliceHeight = hMult * 16;
+
+    loadSpriteAtlas(`${name}.png`, Object.fromEntries(
+        Array.from({ length: 4 }, (_, i) => [
+            `${name}${i + 1}`, 
+            { x: i * sliceWidth, y: 0, width: sliceWidth, height: sliceHeight, sliceX: 1, anims: { idle: { from: 0, to: 0, loop: true, speed: 4 } } }
+        ])
+    ));
+});
+
+loadSprite("green_coral", "green_coral.png", {
+    sliceX: 2,
+    sliceY: 2,
+});
+
+// --- LEVEL CONFIGURATIONS ---
+const LEVELS = [
+    {
+        animal: "fish",
+        bgColor: "#6695ff",
+        barrierSprite: "green_coral", 
+        gravity: 800,
+        speed: 120,
+        jumpForce: 300,
+        bananasRequired: [2, 1, 2, 1], 
+        map: [
+            "========================================",
+            "=                  ||                  =",
+            "= 1  2    3  4     ||                  =",
+            "= =====       ==== ||   ===========    =",
+            "=                  ||         3        =",
+            "=    ===   2  1    ||    ====          =",
+            "=  3               ||        ==        =",
+            "=         ===      ||         2        =",
+            "=                  ||                  =",
+            "======================= ================", 
+            "======================= ================",
+            "=                  ||                  =",
+            "= P                ||                  =",
+            "=   ====           ||       ===        =",
+            "=                  ||        1         =",
+            "=         ====     ||                  =",
+            "=                  ||             2    =",
+            "=    3     4       ||    ======        =",
+            "=                  ||                  =",
+            "========================================"
+        ]
+    },
+    {
+        animal: "shark",
+        bgColor: "#002a66",
+        barrierSprite: "green_coral", 
+        gravity: 600,       
+        speed: 160,         
+        jumpForce: 400,     
+        bananasRequired: [3, 3, 3, 3], 
+        map: [
+            "==================================================",
+            "=                                                =",
+            "= P   1   2   3   4      4   3   2   1           =",
+            "====== === === === ====== === === === === =======",
+            "=                                                =",
+            "=================================================="
+        ]
+    }
+];
 
 // --- MAIN GAME SCENE ---
-scene("game", () => {
-
-    let currentPhaseIndex = 0;
-    let bananasEaten = 0;
-
-    /*
-    = : Barrier
-    1 : Blue Banana
+scene("game", (levelIndex = 0) => {
     
-    */
+    const config = LEVELS[levelIndex];
+    if (!config) { go("win"); return; } 
 
-    // REMOVED THE '@' FROM THE MAP TO PREVENT PARSING ERRORS
-    const levelMap = [
-        "========================================",
-        "=                  ||                  =",
-        "= 1  2    3        ||                  =",
-        "= =====       ==== ||   ===========    =",
-        "=                  ||         3        =",
-        "=    ===   2  1    ||    ====          =",
-        "=  3               ||        ==        =",
-        "=         ===      ||         2        =",
-        "=                  ||                  =",
-        "======================= ================", // Screen border mid-point (Row 10)
-        "======================= ================",
-        "=                  ||                  =",
-        "=                  ||                  =",
-        "=   ====           ||       ===        =",
-        "=                  ||        1         =",
-        "=         ====     ||                  =",
-        "=                  ||             2    =",
-        "=    3             ||    ======        =",
-        "=                  ||                  =",
-        "========================================"
-    ];
+    setBackground(Color.fromHex(config.bgColor));
+    setGravity(config.gravity);
 
+    const GAME_WIDTH = config.map[0].length * 16;
+    const GAME_HEIGHT = config.map.length * 16;
+
+    let currentForm = 1; 
+    let bananasEaten = 0;
+    
     const levelConfig = {
         tileWidth: 16,
         tileHeight: 16,
         tiles: {
             "=": () => [
-                rect(16, 16),
-                color(50, 200, 50),
+                sprite(config.barrierSprite, { frame: Math.floor(Math.random() * 4) }),
                 area(),
                 body({ isStatic: true }),
                 "ground"
             ],
-            "1": () => [
-                sprite("banana-blue", { anim: "idle" }),
-                area({ shape: new Rect(vec2(1,1), 14, 14) }),
-                "banana",
-                { type: "blue" }
-            ],
-            "2": () => [
-                sprite("banana-green", { anim: "idle" }),
-                area({ shape: new Rect(vec2(1,1), 14, 14) }),
-                "banana",
-                { type: "green" }
-            ],
-            "3": () => [
-                sprite("banana-brown", { anim: "idle" }),
-                area({ shape: new Rect(vec2(1,1), 14, 14) }),
-                "banana",
-                { type: "brown" }
-            ]
+            // Applied area scale: 0.8 to make grabbing bananas more forgiving and seamless!
+            "1": () => [ sprite("banana1", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 1 } ],
+            "2": () => [ sprite("banana2", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 2 } ],
+            "3": () => [ sprite("banana3", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 3 } ],
+            "4": () => [ sprite("banana4", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 4 } ],
+            "P": () => [ "spawnpoint" ] 
         }
     };
 
+    addLevel(config.map, levelConfig);
 
-    // 1. Generate the static tilemap layout
-    addLevel(levelMap, levelConfig);
+    const spawnPoint = get("spawnpoint")[0]?.pos || vec2(40, 40);
 
-    // 2. Spawn the player manually right here. 
-    // This guarantees 'player' is correctly defined in this scope!
     const player = add([
-        sprite("fish"),
-        pos(40, 140), // Spawns safely on the lower left floor
-        area({ shape: new Rect(vec2(1,1), 14, 14) }),
+        sprite(`${config.animal}${currentForm}`),
+        // Since we anchor to "center", we offset the spawn by 8px to keep the player aligned perfectly
+        pos(spawnPoint.add(8, 8)), 
+        anchor("center"), // Centers scaling and collision calculation!
+        // --- PHYSICS GREASE ---
+        // 0.75 means the physical hitbox is 75% of the visual sprite width (leaves a nice gap on sides to slide past blocks)
+        // 0.95 keeps the vertical height almost pixel perfect to prevent floating/sinking
+        area({ scale: vec2(0.75, 0.95) }), 
         body(),
         "player"
     ]);
 
-    function updateCamera() {
+    // --- OLD AUTO-ROOM CAMERA LOGIC ---
+    player.onUpdate(() => {
         const currentQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
         const currentQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
 
         const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
         const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
 
-        // Updated to use the modern API method
         setCamPos(camX, camY);
-    }
 
-    // Run the camera update check every single frame
-    player.onUpdate(() => {
-        updateCamera();
-
-        // Keep your existing death barrier tracking, but adjust it for the new max height
-        if (player.pos.y > GAME_HEIGHT) {
-            go("lose", "Fell out of the world!");
+        if (player.pos.y > GAME_HEIGHT + 32) {
+            go("lose", "Fell out of the world!", levelIndex);
         }
     });
 
-    // --- UI ---
+    // --- UI (SHRUNK) ---
+    const uiBox = add([
+        rect(90, 26, { radius: 3 }), 
+        pos(5, 5),
+        color(0, 0, 0),
+        opacity(0.6),
+        fixed(), 
+        z(100)
+    ]);
+
     const uiText = add([
-        text("", { size: 10 }),
+        text("", { size: 8 }), 
         pos(10, 10),
         color(255, 255, 255),
-        fixed()
+        fixed(),
+        z(101)
     ]);
 
     function updateUI() {
-        const requiredColor = PHASE_ORDER[currentPhaseIndex];
-        const remaining = BANANAS_PER_PHASE - bananasEaten;
-        uiText.text = `Find: ${remaining} ${requiredColor}`;
+        const required = config.bananasRequired[currentForm - 1] - bananasEaten;
+        const currentName = FORM_NAMES[`${config.animal}${currentForm}`] || `${config.animal} ${currentForm}`;
+        const bananaName = BANANA_NAMES[currentForm] || `Banana ${currentForm}`;
+        
+        uiText.text = `Form: ${currentName}\nNeed: ${required}x ${bananaName}`;
     }
     updateUI();
 
     // --- CONTROLS ---
-    onKeyDown("left", () => {
-        player.move(-SPEED, 0);
+    const moveLeft = () => {
+        player.move(-config.speed, 0);
         player.flipX = true;
-    });
-
-    onKeyDown("right", () => {
-        player.move(SPEED, 0);
+    };
+    const moveRight = () => {
+        player.move(config.speed, 0);
         player.flipX = false;
-    });
+    };
+    const jump = () => {
+        if (player.isGrounded()) player.jump(config.jumpForce);
+    };
 
-    onKeyPress("up", () => {
-        if (player.isGrounded()) {
-            player.jump(JUMP_FORCE);
-        }
-    });
+    onKeyDown("left", moveLeft);
+    onKeyDown("a", moveLeft);
+    
+    onKeyDown("right", moveRight);
+    onKeyDown("d", moveRight);
+    
+    onKeyPress("up", jump);
+    onKeyPress("w", jump);
+    onKeyPress("space", jump);
 
-    onKeyPress("p", () => {
-        debug.inspect = !debug.inspect;
-    })
+    onKeyPress("p", () => debug.inspect = !debug.inspect);
+    onKeyPress("enter", () => go("game", levelIndex)); 
 
-
-    // --- COLLISION & GAME RULES ---
+    // --- EVOLUTION ---
     player.onCollide("banana", (banana) => {
-        const requiredColor = PHASE_ORDER[currentPhaseIndex];
-
-        if (banana.type === requiredColor) {
+        if (banana.bType === currentForm) {
             destroy(banana);
             bananasEaten++;
 
-            if (bananasEaten >= BANANAS_PER_PHASE) {
-                currentPhaseIndex++;
+            if (bananasEaten >= config.bananasRequired[currentForm - 1]) {
+                currentForm++;
                 bananasEaten = 0;
 
-                if (currentPhaseIndex >= PHASE_ORDER.length) {
-                    go("win");
+                if (currentForm > 4) {
+                    go("game", levelIndex + 1); 
+                } else {
+                    player.use(sprite(`${config.animal}${currentForm}`));
                 }
             }
             updateUI();
         } else {
-            go("lose", "Ate the wrong sequence!");
-        }
-    });
-
-    player.onUpdate(() => {
-        if (player.pos.y > GAME_HEIGHT) {
-            go("lose", "Fell out of the world!");
+            go("lose", "Ate the wrong banana sequence!", levelIndex);
         }
     });
 });
 
 // --- LOSE SCENE ---
-scene("lose", (reason) => {
+scene("lose", (reason, levelIndex) => {
+    setBackground(Color.fromHex("#000000"));
+    
     add([
-        text("Game Over\n" + reason, { size: 14 }),
-        pos(GAME_WIDTH / 2, GAME_HEIGHT / 2),
+        text("Game Over\n" + reason + "\n\n[Press Enter to Restart]", { size: 14, align: "center" }),
+        pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
         anchor("center"),
-        color(255, 0, 0)
+        color(255, 50, 50)
     ]);
 
-    onKeyPress("space", () => go("game"));
-
+    onKeyPress("enter", () => go("game", levelIndex));
 });
 
 // --- WIN SCENE ---
 scene("win", () => {
+    setBackground(Color.fromHex("#000000"));
+    
     add([
-        text("You Evolved!\nFully Completed!", { size: 14 }),
-        pos(GAME_WIDTH / 2, GAME_HEIGHT / 2),
+        text("You Evolved!\nFully Completed!", { size: 16, align: "center" }),
+        pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
         anchor("center"),
-        color(0, 255, 0)
+        color(50, 255, 50)
     ]);
 });
 
-go("game");
+go("game", 0);
