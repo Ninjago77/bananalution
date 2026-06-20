@@ -35,49 +35,37 @@ const BANANAS_PER_PHASE = 5;
 
 // Sprites
 // Load the entire sheet and slice it into named sprites
-loadSpriteAtlas("bananas.png", {
-    "banana-blue": {
-        x: 0,         // Top row, first frame
-        y: 16,
-        width: 32,    // Sub-slice width (2 frames of 16px = 32px)
-        height: 16,   // Sub-slice height (1 row = 16px)
-        sliceX: 2,    // Split horizontally into 2 frames
-        anims: {
-            idle: { from: 0, to: 1, loop: true, speed: 4 } // Simple looping animation
+loadSpriteAtlas("bananas.png", Object.fromEntries(
+    Array.from({ length: 4 }, (_, i) => [
+        `banana${i + 1}`, 
+        {
+            x: 0,
+            y: i * 16,        // Dynamically calculates 0, 16, 32, 48
+            width: 32,
+            height: 16,
+            sliceX: 2,
+            anims: {
+                idle: { from: 0, to: 1, loop: true, speed: 4 }
+            }
         }
-    },
-    "banana-green": {
-        x: 0,
-        y: 32,        // Second row down
-        width: 32,
-        height: 16,
-        sliceX: 2,
-        anims: {
-            idle: { from: 0, to: 1, loop: true, speed: 4 }
-        }
-    },
-    "banana-brown": {
-        x: 0,
-        y: 48,        // Third row down
-        width: 32,
-        height: 16,
-        sliceX: 2,
-        anims: {
-            idle: { from: 0, to: 1, loop: true, speed: 4 }
-        }
-    }
-    // Note: Row 4 (y: 48) is free for an extra color if you need it later!
-});
+    ])
+));
 
-loadSpriteAtlas("fish-temp.png", {
-    "fish": {
-        x: 16,         // Top row, first frame
-        y: 0,
-        width: 16,
-        height: 16
-    }
-    // Note: Row 4 (y: 48) is free for an extra color if you need it later!
-});
+loadSpriteAtlas("fishes.png", Object.fromEntries(
+    Array.from({ length: 4 }, (_, i) => [
+        `banana${i + 1}`, 
+        {
+            y: 0,
+            x: i * 16,        // Dynamically calculates 0, 16, 32, 48
+            width: 16,
+            height: 64,
+            sliceX: 4,
+            anims: {
+                idle: { from: 0, to: 3, loop: true, speed: 4 }
+            }
+        }
+    ])
+));
 
 // --- MAIN GAME SCENE ---
 scene("game", () => {
