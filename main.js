@@ -1,18 +1,21 @@
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
-kaplay();
 
+const GAME_WIDTH = 300;
+const GAME_HEIGHT = 200;
 
+// 1. Calculate the max scale for both width and height
+const scaleX = window.innerWidth / GAME_WIDTH;
+const scaleY = window.innerHeight / GAME_HEIGHT;
 
-const obj = add([
-    rect(32, 32), // Draw this object as a rectangle
-    pos(10, 20), // Position this object in X: 10 and Y: 20
-    "shape", // Classify this object as "shape"
-]);
+// 2. Pick the smaller scale so the game completely fits on screen without cropping
+// (Optional: Wrap this in Math.floor(Math.min(scaleX, scaleY)) if you want whole numbers for crisp pixel art)
+const dynamicScale = Math.min(scaleX, scaleY);
 
-
-onKeyDown("right", () => {
-    obj.move(200, 0); // Move the object while "right" key is held down [!code highlight]
+kaplay({ 
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+    background: "#6695ff",
+    scale: dynamicScale, // Use the calculated scale here!
+    canvas: document.getElementById("canvas")
 });
 
-const isShape = obj.is("shape"); // Check for tags [!code highlight]
-debug.log(isShape); // Log it on the screen
