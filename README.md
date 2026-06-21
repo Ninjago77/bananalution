@@ -40,9 +40,8 @@ level 4
 
 Win screen
 
-Pcb CAD (to be uploaded later after improvements)
-
-Case CAD (to be uploaded later after improvements)
+Pcb CAD (files to be uploaded later after improvements)
+<img width="295" height="563" alt="image" src="https://github.com/user-attachments/assets/2786526a-cc73-4060-b2b3-3c5e8afca972" />
 
 
 ---
