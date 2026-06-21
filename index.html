@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bananalution!</title>
-        <style>
-            /* Reset body margins and use flexbox to center the content */
-            body {
-                margin: 0;
-                padding: 0;
-                height: 100vh; /* Make the body take up the full viewport height */
-                display: flex;
-                justify-content: center; /* Center horizontally */
-                align-items: center; /* Center vertically */
-                background-color: gray; /* Optional: dark background outside the canvas */
-            
-            }
 
-            canvas {
-                /* Optional: Add a crisp rendering look for pixel art if scaling up */
-                /* display: block; */
-                image-rendering: pixelated; 
-                border-width: .5rem;
-                border-radius: .25rem;
-                border-color: black;
-            }
-        </style>
-    </head>
-    <body>
-        <script type="module" src="main.js"></script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bananalution!</title>
+    <style>
+        /* Reset body margins and use flexbox to center the content */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            /* Make the body take up the full viewport height */
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: center;
+            /* Center vertically */
+            background-color: gray;
+            /* Optional: dark background outside the canvas */
+
+        }
+
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+            /* Keeps pixel art crisp */
+            image-rendering: crisp-edges;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <script type="module" src="main.js"></script>
+</body>
+
 </html>
