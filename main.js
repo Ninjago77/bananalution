@@ -910,7 +910,7 @@ scene("help", () => {
     onClick("close-help", () => { go("start"); });
 
     onKeyPress("enter", startGame);
-    onClick("continue-help", () => { go("game", 4); });
+    onClick("continue-help", startGame);
 });
 
 loadSprite("start-bkgd", "start-menu-bkgd.png");
