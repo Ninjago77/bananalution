@@ -69,6 +69,7 @@ Different organisms will have different movement mechanics, such as swimming, sw
 
 ## How to Run the Game
 Option 1 **RECOMMENDED**: Use the site above.
+<br>
 Option 2: Clone the repository, and make sure Node.js is installed. Then run the below command in the folder terminal.
 `npx http-server -c-1`
 
