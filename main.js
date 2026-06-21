@@ -36,8 +36,10 @@ const ANIMAL_SIZES = {
     "primates": [1, 1]
 };
 
-const BANANA_NAMES = {
+const BANANA_NAMES1 = {
     1: "Red Banana", 2: "Orange Banana", 3: "Green Banana", 4: "Blue Banana",
+}
+const BANANA_NAMES2 = {
     1: "Apple", 2: "Orange", 3: "Pear", 4: "Banana",
 };
 
@@ -45,6 +47,13 @@ const BANANA_NAMES = {
 loadSpriteAtlas("bananas.png", Object.fromEntries(
     Array.from({ length: 4 }, (_, i) => [
         `banana${i + 1}`,
+        { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
+    ])
+));
+
+loadSpriteAtlas("bananas2.png", Object.fromEntries(
+    Array.from({ length: 4 }, (_, i) => [
+        `bananaB${i + 1}`,
         { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
     ])
 ));
@@ -164,9 +173,9 @@ const LEVELS = [
             "=  1P  2    2       4                  =",
             "=  ====            ||         =====    =",
             "=            ==    ||            3     =",
-            "=    ===   3    1  ||     ===          =",
+            "=    ===   3    1  ||      ==          =",
             "=  3               ||                  =",
-            "=         ===               == 2       =",
+            "=         ===                = 2       =",
             "=                                      =",
             "=======================   ==============",
             "=======================   ==============",
@@ -304,10 +313,10 @@ scene("game", (levelIndex = 0) => {
             "K": () => [sprite("vine", { frame: 1 }), area({ shape: new Rect(vec2(0, 0), 16, 16) }), body({ isStatic: true }), "vine"],
             "k": () => [sprite("vine", { frame: 0 }), area({ shape: new Rect(vec2(0, 8), 16, 8) }), body({ isStatic: true }), "vine"],
             // Collectibles
-            "1": () => [sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
-            "2": () => [sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
-            "3": () => [sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
-            "4": () => [sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }]
+            "1": () => [sprite(`banana${colorblind ? "B" : ""}1`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
+            "2": () => [sprite(`banana${colorblind ? "B" : ""}2`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
+            "3": () => [sprite(`banana${colorblind ? "B" : ""}3`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
+            "4": () => [sprite(`banana${colorblind ? "B" : ""}4`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }]
         }
     };
 
@@ -491,7 +500,7 @@ scene("game", (levelIndex = 0) => {
     function updateUI() {
         const required = config.bananasRequired[currentForm - 1] - bananasEaten;
         const currentName = FORM_NAMES[`${config.animal}${currentForm}`] || `${config.animal} ${currentForm}`;
-        const bananaName = BANANA_NAMES[currentForm] || `Banana ${currentForm}`;
+        const bananaName = (colorblind ? BANANA_NAMES2 : BANANA_NAMES1)[currentForm] || `${colorblind ? "Fruit" : "Banana"} ${currentForm}`;
         uiText.text = `Form: ${currentName}\nNeed: ${required}x ${bananaName}`;
     }
     updateUI();
