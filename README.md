@@ -10,7 +10,7 @@ Level 3: 45.52s Oliver
 ---
 ## How to Run
 
-*make sure 
+*make sure node js is installed
 
 `npx http-server -c-1`
 
