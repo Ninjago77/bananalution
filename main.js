@@ -753,7 +753,7 @@ scene("game", (levelIndex = 0) => {
 
     onKeyPress("q", () => debug.inspect = !debug.inspect);
     onKeyPress("enter", () => go("game", levelIndex));
-    
+
 
     // --- HAZARDS & EVOLUTION ---
     player.onCollide("spike", () => { go("lose", "Impaled on a spike!", levelIndex); });
@@ -884,13 +884,36 @@ scene("help", () => {
         sprite("help-menu"),
         pos(0, 0),
         area(),
-        "help-menu"
+        "help-menu",
+        z(1)
+    ]);
+
+    add([
+        rect(18, 18),
+        color(255, 255, 255),
+        pos(259, 11),
+        opacity(0),
+        area(),
+        "close-help",
+        z(2)
+    ]);
+
+    add([
+        rect(18, 18),
+        color(255, 255, 255),
+        pos(259, 119),
+        opacity(0),
+        area(),
+        "continue-help",
+        z(2)
     ]);
 
     function startGame() { go("game", 0); };
 
+    onClick("close-help", () => { go("start"); });
+
     onKeyPress("enter", startGame);
-    onClick("help-menu", startGame);
+    onClick("continue-help", () => { go("game", 0); });
 });
 
 loadSprite("start-bkgd", "start-menu-bkgd.png");
