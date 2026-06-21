@@ -64,6 +64,7 @@ loadSprite("green_coral", "green_coral.png", { sliceX: 2, sliceY: 2 });
 loadSprite("pink_coral", "pink_coral.png", { sliceX: 2, sliceY: 2 });
 loadSprite("dust", "dust.png", { sliceX: 2, sliceY: 2 });
 loadSprite("bubble", "bubble.png", { sliceX: 2, sliceY: 2 });
+loadSprite("leaf", "leaves.png", { sliceX: 2, sliceY: 2 });
 loadSprite("grass_block", "minecraft_grass_block.png", { sliceX: 2, sliceY: 2 });
 loadSprite("cave", "cave.png", { sliceX: 2, sliceY: 4 });
 loadSprite("vine", "vines.png", { sliceX: 1, sliceY: 2 });
@@ -333,9 +334,10 @@ scene("game", (levelIndex = 0) => {
     // --- PARTICLES ---
     const isWaterLevel = config.animal === "fish" || config.animal === "shark";
     const isCaveLevel = config.animal === "lizard" || config.animal === "dinosaur";
+    const isGreenLevel = config.animal === "primates";
 
-    if (isWaterLevel || isCaveLevel) {
-        const spriteName = isWaterLevel ? "bubble" : "dust";
+    if (isWaterLevel || isCaveLevel || isGreenLevel) {
+        const spriteName = isWaterLevel ? "bubble" : isCaveLevel ? "dust": "leaf";
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
@@ -364,6 +366,7 @@ scene("game", (levelIndex = 0) => {
                 // Screen/Level wrapping (vertically and horizontally)
                 if (isWaterLevel && p.pos.y < -8) p.pos.y = GAME_HEIGHT + 8;
                 if (isCaveLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
+                if (isGreenLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
 
                 if (p.pos.x < -8) p.pos.x = GAME_WIDTH + 8;
                 if (p.pos.x > GAME_WIDTH + 8) p.pos.x = -8;
@@ -581,4 +584,4 @@ scene("win", () => {
     ]);
 });
 
-go("game", 2);
+go("game", 4);
