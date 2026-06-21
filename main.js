@@ -7,6 +7,8 @@ const scaleX = window.innerWidth / VIEW_WIDTH;
 const scaleY = window.innerHeight / VIEW_HEIGHT;
 const dynamicScale = Math.min(scaleX, scaleY);
 
+let colorblind = false;
+
 kaplay({
     width: VIEW_WIDTH,
     height: VIEW_HEIGHT,
@@ -722,7 +724,7 @@ scene("start", () => {
     ]);
 
     const startButton = add([
-        pos(120, 102),
+        pos(75, 102),
         rect(80, 35),
         area(),
         color(255, 255, 255),
@@ -730,20 +732,40 @@ scene("start", () => {
         "startButton"
     ]);
 
+    const colorblindStartButton = add([
+        pos(165, 102),
+        rect(80, 35),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "colorblindStartButton"
+    ]);
+
     const gitButton = add([
         pos(160, 148),
         circle(8),
         area(),
         color(255, 255, 255),
-        opacity(0),
+        opacity(0.5),
+        "gitButton"
+    ]);
+
+    const gitButton = add([
+        pos(160, 148),
+        circle(8),
+        area(),
+        color(255, 255, 255),
+        opacity(0.5),
         "gitButton"
     ]);
 
     function startHelp() { go("help"); };
 
-    onKeyPress("enter", startHelp);
-    onClick("startButton", startHelp);
-    startButton.onTouchStart(startHelp);
+    onClick("startButton", () => { colorblind = false; startHelp(); });
+    startButton.onTouchStart(() => { colorblind = false; startHelp(); });
+
+    onClick("colorblindStartButton", () => { colorblind = true; startHelp(); });
+    colorblindStartButton.onTouchStart(() => { colorblind = true; startHelp(); });
 
     onKeyPress("i", () => {
         window.open("https://github.com/Ninjago77/bananalution", "_blank")
