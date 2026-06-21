@@ -317,7 +317,7 @@ scene("game", (levelIndex = 0) => {
         const x = currentMapState[y].indexOf("P");
         if (x !== -1) {
             playerStartPos = vec2(x * 16, y * 16);
-            currentMapState[y][x] = " "; 
+            currentMapState[y][x] = " ";
             break;
         }
     }
@@ -342,7 +342,7 @@ scene("game", (levelIndex = 0) => {
                 if (levelConfig.tiles[tileChar]) {
                     const comps = levelConfig.tiles[tileChar]();
                     comps.push(pos(x * 16, y * 16));
-                    comps.push("map_object"); 
+                    comps.push("map_object");
 
                     if (comps.includes("banana")) {
                         const dataComp = comps.find(c => c && c.bType !== undefined);
@@ -422,7 +422,7 @@ scene("game", (levelIndex = 0) => {
             )
         }),
         body(),
-        z(10), 
+        z(10),
         {
             isFrozen: false
         },
@@ -504,7 +504,7 @@ scene("game", (levelIndex = 0) => {
 
     let isHoldingReset = false;
     let resetTimer = 0;
-    const HOLD_RESET_TIME = 2.5; 
+    const HOLD_RESET_TIME = 2.5;
 
     const joyCenter = vec2(35, VIEW_HEIGHT - 35);
     const joyBaseRadius = 25;
@@ -569,7 +569,7 @@ scene("game", (levelIndex = 0) => {
         // Standard steer grab or hold-reset check
         if (screenPos.dist(joyCenter) < joyBaseRadius + 15) {
             joyPointerId = id; // Always accept the click to ensure the joystick doesn't get stuck
-            
+
             if (screenPos.dist(joyCenter) < joyKnobRadius) {
                 isHoldingReset = true;
                 resetTimer = 0;
@@ -608,14 +608,14 @@ scene("game", (levelIndex = 0) => {
         let dir = screenPos.sub(joyCenter).unit();
 
         if (dist > joyBaseRadius) dist = joyBaseRadius;
-        
+
         const newPos = joyCenter.add(dir.scale(dist));
         joyKnob.pos = newPos;
         resetText.pos = newPos;
 
         if (dist > 5) {
             joystickDir = dir;
-            
+
             if (config.gravity > 0 && dir.y < -0.6 && !hasJumpedThisTouch) {
                 if (player.isGrounded()) {
                     player.jump(config.jumpForce);
@@ -645,7 +645,7 @@ scene("game", (levelIndex = 0) => {
         if (isHoldingReset) {
             resetTimer += dt();
             const progress = Math.min(resetTimer / HOLD_RESET_TIME, 1);
-            
+
             // Fade from White to Red
             const r = 255;
             const g = 255 * (1 - progress);
@@ -655,7 +655,7 @@ scene("game", (levelIndex = 0) => {
             if (progress >= 1) {
                 isHoldingReset = false;
                 resetTimer = 0;
-                go("game", levelIndex); 
+                go("game", levelIndex);
             }
         }
     });
@@ -689,7 +689,7 @@ scene("game", (levelIndex = 0) => {
         }
         let dx = 0;
         let dy = 0;
-        
+
         // Keyboard mapping
         if (keys.left.some(k => isKeyDown(k))) dx -= 1;
         if (keys.right.some(k => isKeyDown(k))) dx += 1;
@@ -720,7 +720,7 @@ scene("game", (levelIndex = 0) => {
     player.onCollideEnd("vine", () => { isTouchingVine = false; });
 
     player.onUpdate(() => {
-        updateCameraAndMap(); 
+        updateCameraAndMap();
 
         const dir = getInputDirection();
         if (dir.x !== 0 || dir.y !== 0) {
@@ -752,8 +752,9 @@ scene("game", (levelIndex = 0) => {
         }
     });
 
-    onKeyPress("p", () => debug.inspect = !debug.inspect);
+    onKeyPress("q", () => debug.inspect = !debug.inspect);
     onKeyPress("enter", () => go("game", levelIndex));
+    
 
     // --- HAZARDS & EVOLUTION ---
     player.onCollide("spike", () => { go("lose", "Impaled on a spike!", levelIndex); });
@@ -768,7 +769,7 @@ scene("game", (levelIndex = 0) => {
             bananasEaten++;
 
             if (bananasEaten >= config.bananasRequired[currentForm - 1]) {
-                bananasEaten = 0; 
+                bananasEaten = 0;
 
                 currentForm++;
                 spawnEffect(player.pos);
@@ -822,8 +823,8 @@ scene("win", () => {
             }),
             pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2 + 8),
             anchor("center"),
-            opacity(0), 
-            color(0, 0, 0), 
+            opacity(0),
+            color(0, 0, 0),
             z(5),
         ]);
 
@@ -835,7 +836,7 @@ scene("win", () => {
             pos(title.pos),
             anchor("center"),
             color(255, 255, 255),
-            opacity(0), 
+            opacity(0),
             z(1),
         ]);
 
@@ -844,8 +845,8 @@ scene("win", () => {
             sprite("logo"),
             pos(center().x, center().y + 48),
             anchor("center"),
-            color(255, 255, 255), 
-            scale(2),            
+            color(255, 255, 255),
+            scale(2),
             opacity(0),
             z(20),
             {
@@ -920,27 +921,41 @@ scene("start", () => {
     ]);
 
     const gitButton = add([
-        pos(160, 148),
+        pos(146, 146),
         circle(8),
         area(),
         color(255, 255, 255),
-        opacity(0.5),
+        opacity(0),
         "gitButton"
+    ]);
+
+    const helpButton = add([
+        pos(172, 146),
+        circle(9),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "helpButton"
     ]);
 
     function startHelp() { go("help"); };
 
     onClick("startButton", () => { colorblind = false; startHelp(); });
-    startButton.onTouchStart(() => { colorblind = false; startHelp(); });
 
     onClick("colorblindStartButton", () => { colorblind = true; startHelp(); });
-    colorblindStartButton.onTouchStart(() => { colorblind = true; startHelp(); });
 
     onKeyPress("i", () => {
         window.open("https://github.com/Ninjago77/bananalution", "_blank")
     });
     onClick("gitButton", () => {
         window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+
+    onKeyPress("p", () => {
+        go("help");
+    });
+    onClick("helpButton", () => {
+        go("help");
     });
 
 });
