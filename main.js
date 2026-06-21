@@ -62,6 +62,8 @@ Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
 
 loadSprite("green_coral", "green_coral.png", { sliceX: 2, sliceY: 2 });
 loadSprite("pink_coral", "pink_coral.png", { sliceX: 2, sliceY: 2 });
+loadSprite("dust", "dust.png", { sliceX: 2, sliceY: 2 });
+loadSprite("bubble", "bubble.png", { sliceX: 2, sliceY: 2 });
 loadSprite("grass_block", "minecraft_grass_block.png", { sliceX: 2, sliceY: 2 });
 loadSprite("cave", "cave.png", { sliceX: 2, sliceY: 4 });
 
@@ -159,8 +161,9 @@ const LEVELS = [
             "= √ √ √                                    √ √ √ =",
             "=                                                =",
             "= P   1   2   3   4      4   3   2   1           =",
-            "====== === === === ====== === === === === =======",
-            "=      ^   ^   ^          ^   ^   ^   ^          =",
+            "====== === === === ====== === === === === ^^======",
+            "=      ^   ^   ^          ^   ^   ^   ^   aa     =",
+            "       a   a   a          a   a   a   a   AA      ",
             "=================================================="
         ]
     },
@@ -289,6 +292,47 @@ scene("game", (levelIndex = 0) => {
 
     addLevel(config.map, levelConfig);
 
+    // --- PARTICLES ---
+    const isWaterLevel = config.animal === "fish" || config.animal === "shark";
+    const isCaveLevel = config.animal === "lizard" || config.animal === "dinosaur";
+
+    if (isWaterLevel || isCaveLevel) {
+        const spriteName = isWaterLevel ? "bubble" : "dust";
+        const dirY = isWaterLevel ? -1 : 1;
+        const speedRange = isWaterLevel ? [15, 35] : [10, 25];
+        const wobbleMult = isWaterLevel ? 2 : 1;
+        
+        // Dynamic map-size particle scaling (around ~30 particles per screen)
+        const mapScreensArea = (GAME_WIDTH * GAME_HEIGHT) / (VIEW_WIDTH * VIEW_HEIGHT);
+        const particleCount = Math.floor(mapScreensArea * 30); 
+
+        for (let i = 0; i < particleCount; i++) {
+            const p = add([
+                sprite(spriteName, { frame: randi(0, 4) }),
+                pos(rand(0, GAME_WIDTH), rand(0, GAME_HEIGHT)),
+                opacity(rand(0.3, 0.7)),
+                z(5), // Render right on top of level tiles, but under the player
+                "particle",
+                {
+                    speed: rand(speedRange[0], speedRange[1]),
+                    wobbleOffset: rand(0, Math.PI * 2),
+                }
+            ]);
+
+            p.onUpdate(() => {
+                p.pos.y += dirY * p.speed * dt();
+                p.pos.x += Math.sin(time() * wobbleMult + p.wobbleOffset) * 0.3; // Gentle horizontal drifting
+
+                // Screen/Level wrapping (vertically and horizontally)
+                if (isWaterLevel && p.pos.y < -8) p.pos.y = GAME_HEIGHT + 8;
+                if (isCaveLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
+                
+                if (p.pos.x < -8) p.pos.x = GAME_WIDTH + 8;
+                if (p.pos.x > GAME_WIDTH + 8) p.pos.x = -8;
+            });
+        }
+    }
+
     // --- PLAYER CREATION ---
     const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
     
@@ -307,6 +351,7 @@ scene("game", (levelIndex = 0) => {
             ) 
         }),
         body(),
+        z(10), // Ensures the player will render slightly above level geometry & particles
         "player"
     ]);
 
@@ -456,4 +501,4 @@ scene("win", () => {
     ]);
 });
 
-go("game", 4);
+go("game", 0);
