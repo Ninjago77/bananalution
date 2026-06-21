@@ -64,6 +64,7 @@ loadSprite("green_coral", "green_coral.png", { sliceX: 2, sliceY: 2 });
 loadSprite("pink_coral", "pink_coral.png", { sliceX: 2, sliceY: 2 });
 loadSprite("grass_block", "minecraft_grass_block.png", { sliceX: 2, sliceY: 2 });
 loadSprite("cave", "cave.png", { sliceX: 2, sliceY: 4 });
+loadSprite("vine", "vines.png");
 
 // --- LEVEL CONFIGURATIONS ---
 const LEVELS = [
@@ -170,17 +171,17 @@ const LEVELS = [
         bgColor: "#87ceeb",
         barrierSprite: "grass_block",
         gravity: 600,
-        speed: 150,
-        jumpForce: 300,
+        speed: 100,
+        jumpForce: 250,
         bananasRequired: [1, 1, 1, 1],
         map: [
             "========================================",
-            "=                  ||                  =",
-            "=            k==   ||                  =",
-            "=        k   k   ==||                  =",
+            "=  k               ||                  =",
+            "=  k         k==                       =",
+            "=  k     k   k   ==||                  =",
+            "=        k   3k    ||                  =",
             "=        k    k    ||                  =",
-            "=            3k    ||                  =",
-            "=     ====         ||                  =",
+            "=      ===         ||                  =",
             "=                  ||                  =",
             "= P                ||                  =",
             "========================================"
@@ -268,6 +269,14 @@ scene("game", (levelIndex = 0) => {
                 area({ shape: new Rect(vec2(2, 0), 12, 14) }),
                 body({ isStatic: true }),
                 "spike"
+            ],
+
+            // --- VINES ---
+            "k": () => [
+                sprite("vine"),
+                area({ shape: new Rect(vec2(0, 0), 16, 16) }),
+                body({ isStatic: true }),
+                "vine"
             ],
 
             // --- COLLECTIBLES ---
@@ -380,6 +389,24 @@ scene("game", (levelIndex = 0) => {
         return vec2(dx, dy).unit();
     }
 
+    // Configuration variables
+    const CLIMB_SPEED = 120;
+    const SLIDE_SPEED = 30; // How fast they slowly slide down
+    let isTouchingVine = false;
+
+    // 1. Initial Impact: Stop them dead in their tracks
+    player.onCollide("vine", () => {
+        isTouchingVine = true;
+        player.gravityScale = 0; // Disable passive acceleration
+        player.vel.y = 0;        // Erase any momentum from falling
+    });
+
+    // 2. Leaving the vine: Restore physics
+    player.onCollideEnd("vine", () => {
+        isTouchingVine = false;
+        player.gravityScale = 1; // Hand control back to Kaplay's gravity
+    });
+
     player.onUpdate(() => {
         updateCamera();
 
@@ -395,11 +422,31 @@ scene("game", (levelIndex = 0) => {
         if (player.pos.y > GAME_HEIGHT + 64) {
             go("lose", "Fell into the abyss!", levelIndex);
         }
+
+        if (isTouchingVine) {
+            if (isKeyDown("up")) {
+                // Climb up
+                player.vel.y = -CLIMB_SPEED;
+            } else if (isKeyDown("down")) {
+                // Climb down faster
+                player.vel.y = CLIMB_SPEED;
+            } else {
+                // Not pressing anything: Slow, controlled slide
+                player.vel.y = SLIDE_SPEED;
+            }
+        }
     });
 
     onKeyPress((k) => {
         if (keys.jump.includes(k) && config.gravity > 0 && player.isGrounded()) {
             player.jump(config.jumpForce);
+        } else if (isTouchingVine) {
+            // Optional: Detach them slightly so they don't immediately re-collide
+            player.gravityScale = 1;
+            isTouchingVine = false;
+
+            // Execute the jump
+            player.jump((config.jumpForce) * 0.5);
         }
     });
 
