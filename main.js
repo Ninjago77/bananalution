@@ -20,11 +20,11 @@ loadRoot("/assets/");
 // --- DICTIONARIES & DATA ---
 const FORM_NAMES = {
     "fish1": "Goldfish", "fish2": "Bass Fish", "fish3": "Powder Blue Fish", "fish4": "Discus Fish",
-    "shark1": "Baby Shark", "shark2": "Tiger Shark", "shark3": "Great White", "shark4": "Megalodon",
+    "shark1": "Thrasher", "shark2": "Blåhaj", "shark3": "Whale Shark", "shark4": "Hammerhead Shark",
 };
 
 const BANANA_NAMES = {
-    1: "Yellow Banana", 2: "Blue Banana", 3: "Green Banana", 4: "Orange Banana"
+    1: "Red Banana", 2: "Orange Banana", 3: "Green Banana", 4: "Blue Banana"
 };
 
 const ANIMAL_SIZES = {
@@ -205,7 +205,7 @@ scene("game", (levelIndex = 0) => {
 
     // --- UI ---
     const uiBox = add([
-        rect(90, 26, { radius: 3 }), 
+        rect(130, 26, { radius: 3 }), 
         pos(5, 5),
         color(0, 0, 0),
         opacity(0.6),
@@ -308,4 +308,4 @@ scene("win", () => {
 });
 
 
-go("game", 0);
+go("game", 1);
