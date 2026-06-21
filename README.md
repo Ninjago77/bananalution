@@ -71,6 +71,7 @@ Different organisms will have different movement mechanics, such as swimming, sw
 Option 1 **RECOMMENDED**: Use the site above.
 <br>
 Option 2: Clone the repository, and make sure Node.js is installed. Then run the below command in the folder terminal.
+<br>
 `npx http-server -c-1`
 
 
