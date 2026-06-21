@@ -211,17 +211,40 @@ const LEVELS = [
         bananasRequired: [1, 1, 1, 1],
         map: [
             "========================================",
-            "=  K2            = ||                  =",
+            "=  K2            = ||          1       =",
             "=  K     k   K==            K ===      =",
             "=  K     K   K   ==||=      K       == =",
             "=        K   3K    ||   =         =    =",
             "=        K    K    ||    = k     =     =",
             "=      ====        ||      K =         =",
             "=                  ||      K ===       =",
-            "= P         1      ||      =   4=      =",
+            "= P                ||      =   4=      =",
+            "========================================"
+        ]
+    },
+    //*
+    {
+        animal: "primates",
+        bgColor: "#87ceeb",
+        barrierSprite: "grass_block",
+        gravity: 600,
+        speed: 100,
+        jumpForce: 255,
+        bananasRequired: [1, 1, 1, 1],
+        map: [
+            "========================================",
+            "=  K             = ||                  =",
+            "=  K     k   K==            K ===      =",
+            "=  K     K   K   ==||=      K       == =",
+            "=        K    K    ||   =         =    =",
+            "=        K    K    ||    = k     =     =",
+            "=      ====        ||      K =         =",
+            "=                  ||      K ===       =",
+            "= P   1  2  3  4   ||      =    =      =",
             "========================================"
         ]
     }
+    //*/
 ];
 
 // --- MAIN GAME SCENE ---
@@ -616,16 +639,85 @@ scene("lose", (reason, levelIndex) => {
     onKeyPress("enter", () => go("game", levelIndex));
 });
 
+loadSprite("win-screen", "win-screen.png");
+loadSprite("logo", "logo.png");
 // --- WIN SCENE ---
 scene("win", () => {
     setBackground(Color.fromHex("#000000"));
 
-    add([
-        text("You Evolved!\nFully Completed!", { size: 16, align: "center" }),
-        pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
-        anchor("center"),
-        color(50, 255, 50)
-    ]);
+    wait(1, () => {
+
+
+        // 1. Background Screen (Starts at 0 opacity)
+        const bg = add([
+            sprite("win-screen"),
+            pos(0, 0),
+            opacity(0),
+        ]);
+
+        // 2. Title Text (CRITICAL: Added opacity component, removed color(0,0,0) so it's readable)
+        const title = add([
+            text("You completed...", {
+                size: 8,
+                align: "center",
+            }),
+            pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2 + 8),
+            anchor("center"),
+            opacity(0), // Text needs this component to fade!
+            color(0, 0, 0), // If your background box is white, black text works great
+            z(5),
+        ]);
+
+        // 3. Background Box for Text
+        const box = add([
+            rect(title.width + 16, title.height + 16, {
+                radius: 4,
+            }),
+            pos(title.pos),
+            anchor("center"),
+            color(255, 255, 255),
+            opacity(0), // Start at 0 so it fades with text
+            z(1),
+        ]);
+
+        // 4. Logo Sprite (CRITICAL: Added explicit color(255,255,255) to prevent tinting bugs)
+        const logo = add([
+            sprite("logo"),
+            pos(center().x, center().y + 48),
+            anchor("center"),
+            color(255, 255, 255), // Keeps original PNG file colors intact!
+            scale(2),            // <-- Doubles the width and height of the sprite
+            opacity(0),
+            z(20),
+            {
+                shouldFadeIn: false,
+                fadeSpeed: 1
+            }
+        ]);
+
+        // Global Fade-In Controller Loop (Moved below variable declarations)
+        onUpdate(() => {
+            bg.opacity = Math.min(bg.opacity + dt() * 0.5, 1);
+            title.opacity = Math.min(title.opacity + dt() * 0.5, 1);
+
+            // Match box frame transparency perfectly to the text wrapper
+            box.opacity = Math.min(title.opacity * 0.9, 0.9);
+        });
+
+        // 3-Second Delayed Fade Logic for the Logo
+        wait(3, () => {
+            logo.shouldFadeIn = true;
+        });
+
+        logo.onUpdate(() => {
+            if (logo.shouldFadeIn && logo.opacity < 1) {
+                logo.opacity += logo.fadeSpeed * dt();
+                if (logo.opacity > 1) {
+                    logo.opacity = 1;
+                }
+            }
+        });
+    });
 });
 
-go("game", 4);
+go("game", 5);
