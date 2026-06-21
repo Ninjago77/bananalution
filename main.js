@@ -924,7 +924,7 @@ scene("start", () => {
         circle(8),
         area(),
         color(255, 255, 255),
-        opacity(0.5),
+        opacity(0),
         "gitButton"
     ]);
 
@@ -933,7 +933,7 @@ scene("start", () => {
         circle(9),
         area(),
         color(255, 255, 255),
-        opacity(0.5),
+        opacity(0),
         "helpButton"
     ]);
 
