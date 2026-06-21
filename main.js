@@ -111,7 +111,8 @@ const LEVELS = [
         gravity: 0,
         speed: 160,
         jumpForce: 0,
-        bananasRequired: [6, 6, 6, 6],
+        bananasRequired: [2, 2, 2, 2],
+        // bananasRequired: [6, 6, 6, 6],
         map: [
             "============================================================",
             "= P        =                 =         ==                  =",
