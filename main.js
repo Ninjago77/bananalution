@@ -912,7 +912,7 @@ scene("help", () => {
         z(2)
     ]);
 
-    function startGame() { go("game", 4); };
+    function startGame() { go("game", 0); };
 
     onClick("close-help", () => { go("start"); });
 
