@@ -52,7 +52,9 @@ Level 5
 Win Screen
 <img width="2880" height="1442" alt="Level 6" src="https://github.com/user-attachments/assets/7427e284-ba0e-445b-b57a-db241cb72722" />
 ---
-
+Joystick Controller
+https://youtu.be/mOrrtNzNXhU
+---
 PCB Controller CAD (files to be uploaded later after improvements) 
 <br>
 <img width="295" height="563" alt="PCB SS" src="https://github.com/user-attachments/assets/2786526a-cc73-4060-b2b3-3c5e8afca972" />
