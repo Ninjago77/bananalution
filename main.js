@@ -927,15 +927,6 @@ scene("start", () => {
         "gitButton"
     ]);
 
-    const gitButton = add([
-        pos(160, 148),
-        circle(8),
-        area(),
-        color(255, 255, 255),
-        opacity(0.5),
-        "gitButton"
-    ]);
-
     function startHelp() { go("help"); };
 
     onClick("startButton", () => { colorblind = false; startHelp(); });
