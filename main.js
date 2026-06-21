@@ -24,7 +24,7 @@ const FORM_NAMES = {
     "lizard1": "Boa", "lizard2": "Chameleon", "lizard3": "Tortoise", "lizard4": "Alligator",
     "monkey1": "Lemur", "monkey2": "Macaque", "monkey3": "Chimp", "monkey4": "Gorilla",
     "dinosaur1": "Yoshi", "dinosaur2": "Dilophosaurus", "dinosaur3": "Chrome Dino", "dinosaur4": "Orpheus",
-    "primates1": "Monkey", "primates2": "Gorilla", "primates3": "Caveman", "primates4": "HackClubber"
+    "primates1": "Monkey", "primates2": "Gorilla", "primates3": "Caveman", "primates4": "Hack Clubber"
 };
 
 const ANIMAL_SIZES = {
