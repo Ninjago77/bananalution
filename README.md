@@ -31,6 +31,10 @@ Setup:
 
 ## Screenshots
 ---
+Joystick Controller
+<br>
+https://youtu.be/mOrrtNzNXhU
+---
 Main Menu
 <img width="2880" height="1442" alt="Main Menu" src="https://github.com/user-attachments/assets/ebbfe19f-85ae-4c09-95aa-a47fab73ce7b" />
 ---
@@ -51,9 +55,6 @@ Level 5
 ---
 Win Screen
 <img width="2880" height="1442" alt="Level 6" src="https://github.com/user-attachments/assets/7427e284-ba0e-445b-b57a-db241cb72722" />
----
-Joystick Controller
-https://youtu.be/mOrrtNzNXhU
 ---
 PCB Controller CAD (files to be uploaded later after improvements) 
 <br>
