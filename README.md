@@ -1,4 +1,5 @@
 # Bananalution!
+<img width="2880" height="1442" alt="Main Menu" src="https://github.com/user-attachments/assets/ebbfe19f-85ae-4c09-95aa-a47fab73ce7b" />
 
 Play through our platfomer, collecting BANANAS to MORPH in to different organisms, in a similar ORDER as to the what the earth had. Starting with FISH, work your way up to becoming the pinnacle of human evolution, a hack club member!
 
