@@ -48,6 +48,17 @@ loadSpriteAtlas("bananas.png", Object.fromEntries(
     ])
 ));
 
+loadSpriteAtlas("morph1.png", {
+    "morph1": {
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 64,
+        sliceY: 4,
+        anims: { boom: { from: 0, to: 3, loop: false, speed: 10 }, },
+    },
+});
+
 Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
     const sliceWidth = wMult * 16;
     const sliceHeight = hMult * 16;
@@ -189,8 +200,8 @@ const LEVELS = [
             "=================================================="
         ]
     },
+    // Level 4: Primates - Platformer Blank Space
     {
-        // Level 4: Primates - Platformer Blank Space
         animal: "primates",
         bgColor: "#87ceeb",
         barrierSprite: "grass_block",
@@ -200,14 +211,14 @@ const LEVELS = [
         bananasRequired: [1, 1, 1, 1],
         map: [
             "========================================",
-            "=  K2            = ||           1      =",
+            "=  K2            = ||                  =",
             "=  K     k   K==            K ===      =",
             "=  K     K   K   ==||=      K       == =",
             "=        K   3K    ||   =         =    =",
             "=        K    K    ||    = k     =     =",
             "=      ====        ||      K =         =",
             "=                  ||      K ===       =",
-            "= P                ||      =   4=      =",
+            "= P         1      ||      =   4=      =",
             "========================================"
         ]
     }
@@ -337,7 +348,7 @@ scene("game", (levelIndex = 0) => {
     const isGreenLevel = config.animal === "primates";
 
     if (isWaterLevel || isCaveLevel || isGreenLevel) {
-        const spriteName = isWaterLevel ? "bubble" : isCaveLevel ? "dust": "leaf";
+        const spriteName = isWaterLevel ? "bubble" : isCaveLevel ? "dust" : "leaf";
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
@@ -393,8 +404,33 @@ scene("game", (levelIndex = 0) => {
         }),
         body(),
         z(10), // Ensures the player will render slightly above level geometry & particles
+        {
+            isFrozen: false
+        },
         "player"
     ]);
+
+    function spawnEffect(spawnPosition) {
+        // 1. Create the effect object at the target position
+        const fx = add([
+            sprite("morph1"),
+            pos(spawnPosition),
+            anchor("topleft"), // Centers the sprite on the player's coordinates
+            z(15),
+        ]);
+
+        player.isFrozen = true;
+        // 2. Play the animation
+        fx.play("boom");
+
+        // 3. Destroy the object the exact frame the animation finishes
+        fx.onAnimEnd((anim) => {
+            if (anim === "boom") {
+                destroy(fx);
+                player.isFrozen = false;
+            }
+        });
+    }
 
     let lastCamX = null;
     let lastCamY = null;
@@ -450,6 +486,9 @@ scene("game", (levelIndex = 0) => {
     };
 
     function getInputDirection() {
+        if (player.isFrozen) {
+            return vec2(0, 0);
+        }
         let dx = 0;
         let dy = 0;
         if (keys.left.some(k => isKeyDown(k))) dx -= 1;
@@ -516,6 +555,9 @@ scene("game", (levelIndex = 0) => {
     });
 
     onKeyPress((k) => {
+        if (player.isFrozen) {
+            return;
+        }
         if (keys.jump.includes(k) && config.gravity > 0 && player.isGrounded()) {
             player.jump(config.jumpForce);
         } else if (isTouchingVine) {
@@ -542,8 +584,10 @@ scene("game", (levelIndex = 0) => {
             bananasEaten++;
 
             if (bananasEaten >= config.bananasRequired[currentForm - 1]) {
+                bananasEaten = 0;  // reset for next form
+
                 currentForm++;
-                bananasEaten = 0;
+                spawnEffect(player.pos);
 
                 if (currentForm > 4) {
                     go("game", levelIndex + 1);
