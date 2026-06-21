@@ -220,20 +220,30 @@ const LEVELS = [
         gravity: 600,
         speed: 100,
         jumpForce: 255,
-        bananasRequired: [1, 1, 1, 1],
+        bananasRequired: [1, 2, 2, 2],
         map: [
             "========================================",
             "=  K2            = ||          1       =",
-            "=  K     k   K==            K ===      =",
+            "=  K     K   K==            K ===      =",
             "=  K     K   K   ==||=      K       == =",
             "=        K   3K    ||   =         =    =",
             "=        K    K    ||    = k     =     =",
             "=      ====        ||      K =         =",
             "=                  ||      K ===       =",
             "= P                ||      =   4=      =",
+            "=================================K  ====",
+            "                    =============K  ====",
+            "                    |    K     3 K     =",
+            "                    |    K     ==K     =",
+            "                    |=   k    =     = k=",
+            "                    | ===K       4==  K=",
+            "                    |    K       =    K=",
+            "                    |       K=        K=",
+            "                    |        ===       =",
+            "                    |      =   2=      =",
             "========================================"
         ]
-    },
+    }
 ];
 
 
@@ -895,7 +905,7 @@ scene("help", () => {
     add([
         rect(18, 18),
         color(255, 255, 255),
-        pos(259, 119),
+        pos(259, 110),
         opacity(0),
         area(),
         "continue-help",
@@ -907,7 +917,7 @@ scene("help", () => {
     onClick("close-help", () => { go("start"); });
 
     onKeyPress("enter", startGame);
-    onClick("continue-help", () => { go("game", 0); });
+    onClick("continue-help", startGame);
 });
 
 loadSprite("start-bkgd", "start-menu-bkgd.png");
