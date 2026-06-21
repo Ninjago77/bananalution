@@ -82,7 +82,6 @@ loadSprite("vine", "vines.png", { sliceX: 1, sliceY: 2 });
 
 // --- LEVEL CONFIGURATIONS ---
 const LEVELS = [
-    // Level 0: Fish - Top-Down Puzzle
     {
         animal: "fish",
         bgColor: "#6695ff",
@@ -104,7 +103,6 @@ const LEVELS = [
             "========================================"
         ]
     },
-    // Level 1: Shark - Top-Down Puzzle
     {
         animal: "shark",
         bgColor: "#002a66",
@@ -112,41 +110,44 @@ const LEVELS = [
         gravity: 0,
         speed: 160,
         jumpForce: 0,
-        bananasRequired: [3, 2, 1, 2], // Collect multiple to evolve, avoiding higher levels
+        bananasRequired: [6, 6, 6, 6], 
         map: [
             "============================================================",
-            "= P                                  =                     =",
-            "=                                    =                     =",
-            "=                                    =                     =",
-            "==============================   =   =   ===============   =",
-            "=                            =   =   =   =             =   =",
-            "=                            =   =   =   =             =   =",
-            "=                            =   =   =   =             =   =",
-            "=   ======================   =   =   =   =   =======   =   =",
-            "=   =                    =   =   =   =   =   =     =   =   =",
-            "=   =       1            =   =   =   =   =   =  1  =   =   =",
-            "=   =                    =   =   =   =   =   =     =   =   =",
-            "=   =   ==============   =   =   =   =   =   =   = =   =   =",
-            "=   =   =            =   =   =   =   =   =   =   = =   =   =",
-            "=   =   =   ======   =   =   = 2 =   =   =   = 3 = =   =   =",
-            "=   =   =   = 1  =   =   =   =====   =   =   ===== =   =   =",
-            "=   =   =   =    =   =   =           =   =         =   =   =",
-            "=   =   =   =    =   =   =============   =====   ===   =   =",
-            "=   =   =   =    =   =                                 =   =",
-            "=   =   =   = 2  =   ===================================   =",
-            "=   =   =   ======                                         =",
-            "=   =   =                                                  =",
-            "=   =   =                                                  =",
-            "=   =   ====================================================",
-            "=   =                                                      =",
-            "=   =                                                      =",
-            "=   ====================================================   =",
-            "= 4                                                      4 =",
-            "=                                                          =",
-            "============================================================",
+            "= P        =                 =         ==                  =",
+            "=             ======  ====   =   ===   ==    =========     =",
+            "=  ======  =  =    =  =  =   =     =   ==    =       =     =",
+            "=       =  =    1  =  =  =   ====  =   ==    =   3   =     =",
+            "======  =  =  =    =  =  =         =   ==    =       21    =",
+            "=       =  =  ======  =  ===========   ==    =========     =",
+            "=  ======  =          =                ==                  =",
+            "=          =          =             4  ==                  =",
+            "========   ===================   =========   ===============",
+            "========   ===================   =========   ===============",
+            "=      =   =           =               ==                  =",
+            "=  4   =   =   ======  =   ==========  ==22============    =",
+            "=  1       =   =   ==  =            =  ==             =    =",
+            "=  4   =   =   = 2     ===========  =  ==   =======   =    =",
+            "========   =   =   ==            =  =  ==   = 4   =   =    =",
+            "=          =   ======  =======   =  =  ==         =   =    =",
+            "=  =========           =     =   =  =  ==   =======   =    =",
+            "=          =============  2  =   =  =  ==             =    =",
+            "======                       =   =  =  ================    =",
+            "======                       =   =  =  ================    =",
+            "=    =    ====================   =  =                      =",
+            "=  21                        =   ======================    =",
+            "=  1                                                       =",
+            "========          =              ========   ============   =",
+            "=                 =  ==========        ==   =              =",
+            "=   ===============  = 3      =======  ==   =   =======    =",
+            "=   =                2        =     =  ==   =   = 4 1 =    =",
+            "=   =  ===============        =  =  =  ==   =   =          =",
+            "=   =                ==========  =  =  ==   =   =======    =",
+            "=   =                ==========  =  =  ==   =   =======    =",
+            "=   ===========================  = 3=  ==   =              =",
+            "=       3                        =  =  ==   =    4         =",
+            "============================================================"
         ]
     },
-    // Level 2: Lizard - Platformer (Old Fish Puzzle)
     {
         animal: "lizard",
         bgColor: "#2d231e",
@@ -178,7 +179,6 @@ const LEVELS = [
             "========================================"
         ]
     },
-    // Level 3: dinosaur - Platformer 
     {
         animal: "dinosaur",
         bgColor: "#1c1410",
@@ -262,6 +262,11 @@ scene("game", (levelIndex = 0) => {
     let currentForm = 1;
     let bananasEaten = 0;
 
+    // --- MUTABLE LOCAL MAP STATE ---
+    // We clone the map into a 2D array. When bananas are eaten, we erase them from this array.
+    let currentMapState = config.map.map(row => row.split(""));
+
+    // We no longer use Kaplay's `offscreen` or `addLevel` feature at all!
     const levelConfig = {
         tileWidth: 16,
         tileHeight: 16,
@@ -273,7 +278,6 @@ scene("game", (levelIndex = 0) => {
                     sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
                     area(),
                     body({ isStatic: true }),
-                    offscreen({ hide: true, distance: 64 }),
                     "ground"
                 ];
             },
@@ -284,88 +288,79 @@ scene("game", (levelIndex = 0) => {
                     sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
                     area(),
                     body({ isStatic: true }),
-                    offscreen({ hide: true, distance: 64 }),
                     "ground"
                 ];
             },
-
-            // --- UPWARD SPIKES (Stalagmites) ---
-            "A": () => [ // BASE UP
-                sprite("cave", { frame: 4, flipY: false }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-            "a": () => [ // MID UP
-                sprite("cave", { frame: 2, flipY: false }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-            "^": () => [ // SHARP UP
-                sprite("cave", { frame: 0, flipY: false }),
-                area({ shape: new Rect(vec2(2, 2), 12, 14) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-
-            // --- DOWNWARD SPIKES (Stalactites) ---
-            "V": () => [ // BASE DOWN
-                sprite("cave", { frame: 4, flipY: true }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-            "v": () => [ // MID DOWN
-                sprite("cave", { frame: 2, flipY: true }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-            "√": () => [ // SHARP DOWN
-                sprite("cave", { frame: 0, flipY: true }),
-                area({ shape: new Rect(vec2(2, 0), 12, 14) }),
-                body({ isStatic: true }),
-                "spike"
-            ],
-
-            // --- VINES ---
-            "K": () => [
-                sprite("vine", { frame: 1 }),
-                area({ shape: new Rect(vec2(0, 0), 16, 16) }),
-                body({ isStatic: true }),
-                "vine"
-            ],
-            "k": () => [
-                sprite("vine", { frame: 0 }),
-                area({ shape: new Rect(vec2(0, 8), 16, 8) }),
-                body({ isStatic: true }),
-                "vine"
-            ],
-
-            // --- COLLECTIBLES ---
+            // Spikes
+            "A": () => [sprite("cave", { frame: 4, flipY: false }), area({ shape: new Rect(vec2(2, 0), 12, 16) }), body({ isStatic: true }), "spike"],
+            "a": () => [sprite("cave", { frame: 2, flipY: false }), area({ shape: new Rect(vec2(2, 0), 12, 16) }), body({ isStatic: true }), "spike"],
+            "^": () => [sprite("cave", { frame: 0, flipY: false }), area({ shape: new Rect(vec2(2, 2), 12, 14) }), body({ isStatic: true }), "spike"],
+            "V": () => [sprite("cave", { frame: 4, flipY: true }), area({ shape: new Rect(vec2(2, 0), 12, 16) }), body({ isStatic: true }), "spike"],
+            "v": () => [sprite("cave", { frame: 2, flipY: true }), area({ shape: new Rect(vec2(2, 0), 12, 16) }), body({ isStatic: true }), "spike"],
+            "√": () => [sprite("cave", { frame: 0, flipY: true }), area({ shape: new Rect(vec2(2, 0), 12, 14) }), body({ isStatic: true }), "spike"],
+            // Vines
+            "K": () => [sprite("vine", { frame: 1 }), area({ shape: new Rect(vec2(0, 0), 16, 16) }), body({ isStatic: true }), "vine"],
+            "k": () => [sprite("vine", { frame: 0 }), area({ shape: new Rect(vec2(0, 8), 16, 8) }), body({ isStatic: true }), "vine"],
+            // Collectibles
             "1": () => [sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
             "2": () => [sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
             "3": () => [sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
-            "4": () => [sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }],
-            "P": () => ["spawnpoint"]
+            "4": () => [sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }]
         }
     };
 
     // --- SPAWNPOINT FINDER SCRIPT ---
     let playerStartPos = vec2(40, 140);
-
-    for (let y = 0; y < config.map.length; y++) {
-        const x = config.map[y].indexOf("P");
+    for (let y = 0; y < currentMapState.length; y++) {
+        const x = currentMapState[y].indexOf("P");
         if (x !== -1) {
             playerStartPos = vec2(x * 16, y * 16);
+            currentMapState[y][x] = " "; // Erase spawn point from map state so it's clean
             break;
         }
     }
 
-    addLevel(config.map, levelConfig);
+    // --- CUSTOM SCREEN MANAGER ---
+    let currentQuadX = -1;
+    let currentQuadY = -1;
 
-    // --- PARTICLES ---
+    function loadQuadrant(qX, qY) {
+        // 1. Wipe all previous geometry cleanly
+        destroyAll("map_object");
+
+        // 2. We load the current 20x10 tile camera view PLUS a 2-tile margin around it.
+        // This margin ensures players won't fall through the floor on the exact frame the camera shifts!
+        const margin = 2;
+        const startCol = Math.max(0, (qX * 20) - margin);
+        const endCol = Math.min(currentMapState[0].length, (qX * 20) + 20 + margin);
+        const startRow = Math.max(0, (qY * 10) - margin);
+        const endRow = Math.min(currentMapState.length, (qY * 10) + 10 + margin);
+
+        for (let y = startRow; y < endRow; y++) {
+            for (let x = startCol; x < endCol; x++) {
+                const tileChar = currentMapState[y][x];
+
+                if (levelConfig.tiles[tileChar]) {
+                    const comps = levelConfig.tiles[tileChar]();
+                    comps.push(pos(x * 16, y * 16));
+                    comps.push("map_object"); // Tagged to easily destroy on the next transition
+
+                    // Embed grid coords so eaten bananas can erase themselves from currentMapState
+                    if (comps.includes("banana")) {
+                        const dataComp = comps.find(c => c && c.bType !== undefined);
+                        if (dataComp) {
+                            dataComp.gridX = x;
+                            dataComp.gridY = y;
+                        }
+                    }
+
+                    add(comps);
+                }
+            }
+        }
+    }
+
+    // --- PARTICLES (Unchanged: Warps dynamically based on camera) ---
     const isWaterLevel = config.animal === "fish" || config.animal === "shark";
     const isCaveLevel = config.animal === "lizard" || config.animal === "dinosaur";
     const isGreenLevel = config.animal === "primates";
@@ -375,17 +370,17 @@ scene("game", (levelIndex = 0) => {
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
-
-        // Dynamic map-size particle scaling (around ~30 particles per screen)
-        const mapScreensArea = (GAME_WIDTH * GAME_HEIGHT) / (VIEW_WIDTH * VIEW_HEIGHT);
-        const particleCount = Math.floor(mapScreensArea * 30);
+        const particleCount = 40; 
 
         for (let i = 0; i < particleCount; i++) {
             const p = add([
                 sprite(spriteName, { frame: randi(0, 4) }),
-                pos(rand(0, GAME_WIDTH), rand(0, GAME_HEIGHT)),
+                pos(
+                    playerStartPos.x + rand(-VIEW_WIDTH, VIEW_WIDTH),
+                    playerStartPos.y + rand(-VIEW_HEIGHT, VIEW_HEIGHT)
+                ),
                 opacity(rand(0.3, 0.7)),
-                z(5), // Render right on top of level tiles, but under the player
+                z(5),
                 "particle",
                 {
                     speed: rand(speedRange[0], speedRange[1]),
@@ -395,22 +390,26 @@ scene("game", (levelIndex = 0) => {
 
             p.onUpdate(() => {
                 p.pos.y += dirY * p.speed * dt();
-                p.pos.x += Math.sin(time() * wobbleMult + p.wobbleOffset) * 0.3; // Gentle horizontal drifting
+                p.pos.x += Math.sin(time() * wobbleMult + p.wobbleOffset) * 0.3;
 
+                const cam = camPos();
+                const halfW = (VIEW_WIDTH / 2) + 32;
+                const halfH = (VIEW_HEIGHT / 2) + 32;
                 // Screen/Level wrapping (vertically and horizontally)
                 if (isWaterLevel && p.pos.y < -8) p.pos.y = GAME_HEIGHT + 8;
                 if (isCaveLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
                 if (isGreenLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
 
-                if (p.pos.x < -8) p.pos.x = GAME_WIDTH + 8;
-                if (p.pos.x > GAME_WIDTH + 8) p.pos.x = -8;
+                if (p.pos.y < cam.y - halfH) p.pos.y += halfH * 2;
+                if (p.pos.y > cam.y + halfH) p.pos.y -= halfH * 2;
+                if (p.pos.x < cam.x - halfW) p.pos.x += halfW * 2;
+                if (p.pos.x > cam.x + halfW) p.pos.x -= halfW * 2;
             });
         }
     }
 
     // --- PLAYER CREATION ---
     const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
-
     const isWide = wMult > 1;
     const paddingX = isWide ? 4 : 1;
     const paddingY = 2;
@@ -426,6 +425,14 @@ scene("game", (levelIndex = 0) => {
             )
         }),
         body(),
+        z(10), 
+        "player"
+    ]);
+
+    function updateCameraAndMap( {
+        const newQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
+        const newQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
+
         z(10), // Ensures the player will render slightly above level geometry & particles
         {
             isFrozen: false
@@ -458,19 +465,22 @@ scene("game", (levelIndex = 0) => {
     let lastCamX = null;
     let lastCamY = null;
 
-    function updateCamera() {
-        const currentQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
-        const currentQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
+        if (newQuadX !== currentQuadX || newQuadY !== currentQuadY) {
+            currentQuadX = newQuadX;
+            currentQuadY = newQuadY;
 
-        const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
-        const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
+            // Render only the current screen and completely destroy the old ones
+            loadQuadrant(currentQuadX, currentQuadY);
 
-        if (camX !== lastCamX || camY !== lastCamY) {
+            // Shift camera
+            const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
+            const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
             setCamPos(camX, camY);
-            lastCamX = camX;
-            lastCamY = camY;
         }
     }
+    
+    // Trigger very first screen load immediately
+    updateCameraAndMap();
 
     // --- UI ---
     const uiBox = add([
@@ -494,12 +504,11 @@ scene("game", (levelIndex = 0) => {
         const required = config.bananasRequired[currentForm - 1] - bananasEaten;
         const currentName = FORM_NAMES[`${config.animal}${currentForm}`] || `${config.animal} ${currentForm}`;
         const bananaName = BANANA_NAMES[currentForm] || `Banana ${currentForm}`;
-
         uiText.text = `Form: ${currentName}\nNeed: ${required}x ${bananaName}`;
     }
     updateUI();
 
-    // --- CONTROLS ---
+    // --- CONTROLS & PHYSICS ---
     const keys = {
         left: ["left", "a"],
         right: ["right", "d"],
@@ -516,64 +525,37 @@ scene("game", (levelIndex = 0) => {
         let dy = 0;
         if (keys.left.some(k => isKeyDown(k))) dx -= 1;
         if (keys.right.some(k => isKeyDown(k))) dx += 1;
-
         if (config.gravity === 0) {
             if (keys.up.some(k => isKeyDown(k))) dy -= 1;
             if (keys.down.some(k => isKeyDown(k))) dy += 1;
         }
-
         return vec2(dx, dy).unit();
     }
 
-    // Configuration variables
     const CLIMB_SPEED = 120;
-    const SLIDE_SPEED = 5; // How fast they slowly slide down
+    const SLIDE_SPEED = 5; 
     let isTouchingVine = false;
 
-    // 1. Initial Impact: Stop them dead in their tracks
-    player.onCollide("vine", () => {
-        isTouchingVine = true;     // Erase any momentum from falling
-    });
-
-    // 2. Leaving the vine: Restore physics
-    player.onCollideEnd("vine", () => {
-        isTouchingVine = false;
-    });
+    player.onCollide("vine", () => { isTouchingVine = true; });
+    player.onCollideEnd("vine", () => { isTouchingVine = false; });
 
     player.onUpdate(() => {
-        updateCamera();
+        updateCameraAndMap(); // Re-evaluates chunks constantly
 
         const dir = getInputDirection();
-
         if (dir.x !== 0 || dir.y !== 0) {
-            // --- FIX: Split X and Y movement to prevent phasing/tunneling ---
-            if (dir.x !== 0) {
-                player.move(vec2(dir.x, 0).scale(config.speed));
-            }
-            if (dir.y !== 0) {
-                player.move(vec2(0, dir.y).scale(config.speed));
-            }
-            // -----------------------------------------------------------------
-
+            if (dir.x !== 0) player.move(vec2(dir.x, 0).scale(config.speed));
+            if (dir.y !== 0) player.move(vec2(0, dir.y).scale(config.speed));
             if (dir.x < 0) player.flipX = true;
             if (dir.x > 0) player.flipX = false;
         }
 
-        if (player.pos.y > GAME_HEIGHT + 64) {
-            go("lose", "Fell into the abyss!", levelIndex);
-        }
+        if (player.pos.y > GAME_HEIGHT + 64) go("lose", "Fell into the abyss!", levelIndex);
 
         if (isTouchingVine) {
-            if (isKeyDown("up")) {
-                // Climb up
-                player.vel.y = -CLIMB_SPEED;
-            } else if (isKeyDown("down")) {
-                // Climb down faster
-                player.vel.y = CLIMB_SPEED;
-            } else {
-                // Not pressing anything: Slow, controlled slide
-                player.vel.y = SLIDE_SPEED;
-            }
+            if (isKeyDown("up")) player.vel.y = -CLIMB_SPEED;
+            else if (isKeyDown("down")) player.vel.y = CLIMB_SPEED;
+            else player.vel.y = SLIDE_SPEED;
         }
     });
 
@@ -584,11 +566,8 @@ scene("game", (levelIndex = 0) => {
         if (keys.jump.includes(k) && config.gravity > 0 && player.isGrounded()) {
             player.jump(config.jumpForce);
         } else if (isTouchingVine) {
-            // Optional: Detach them slightly so they don't immediately re-collide
             player.gravityScale = 1;
             isTouchingVine = false;
-
-            // Execute the jump
             player.jump((config.jumpForce) * 0.5);
         }
     });
@@ -597,12 +576,15 @@ scene("game", (levelIndex = 0) => {
     onKeyPress("enter", () => go("game", levelIndex));
 
     // --- HAZARDS & EVOLUTION ---
-    player.onCollide("spike", () => {
-        go("lose", "Impaled on a spike!", levelIndex);
-    });
+    player.onCollide("spike", () => { go("lose", "Impaled on a spike!", levelIndex); });
 
     player.onCollide("banana", (banana) => {
         if (banana.bType === currentForm) {
+            // Delete banana from our local map state, so it won't reload if we revisit this screen chunk
+            if (banana.gridX !== undefined && banana.gridY !== undefined) {
+                currentMapState[banana.gridY][banana.gridX] = " ";
+            }
+
             destroy(banana);
             bananasEaten++;
 
@@ -628,14 +610,12 @@ scene("game", (levelIndex = 0) => {
 // --- LOSE SCENE ---
 scene("lose", (reason, levelIndex) => {
     setBackground(Color.fromHex("#000000"));
-
     add([
         text("Game Over\n" + reason + "\n\n[Press Enter to Restart]", { size: 14, align: "center" }),
         pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
         anchor("center"),
         color(255, 50, 50)
     ]);
-
     onKeyPress("enter", () => go("game", levelIndex));
 });
 
