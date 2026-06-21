@@ -17,14 +17,22 @@ kaplay({
 
 loadRoot("/assets/");
 
-// --- DICTIONARIES ---
+// --- DICTIONARIES & DATA ---
 const FORM_NAMES = {
-    "fish1": "Tadpole", "fish2": "Minnow", "fish3": "Goldfish", "fish4": "Bass",
+    "fish1": "Goldfish", "fish2": "Bass Fish", "fish3": "Powder Blue Fish", "fish4": "Discus Fish",
     "shark1": "Baby Shark", "shark2": "Tiger Shark", "shark3": "Great White", "shark4": "Megalodon",
 };
 
 const BANANA_NAMES = {
-    1: "Blue Banana", 2: "Green Banana", 3: "Brown Banana", 4: "Golden Banana"
+    1: "Yellow Banana", 2: "Blue Banana", 3: "Green Banana", 4: "Orange Banana"
+};
+
+const ANIMAL_SIZES = {
+    "fish": [1, 1],
+    "shark": [2, 1],
+    // "lizard": [2, 1],
+    // "dinosaur": [1.5, 1.5],
+    // "monkey": [1, 2],
 };
 
 // --- SPRITE LOADING ---
@@ -35,10 +43,7 @@ loadSpriteAtlas("bananas.png", Object.fromEntries(
     ])
 ));
 
-[
-    ["fish", 1, 1], ["shark", 2, 1], ["lizard", 1, 1], 
-    ["dinosaur", 1, 2], ["monkey", 1, 2], ["hackcluborg", 1, 3]
-].forEach(([name, wMult, hMult]) => {
+Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
     const sliceWidth = wMult * 16;
     const sliceHeight = hMult * 16;
 
@@ -61,29 +66,29 @@ const LEVELS = [
         animal: "fish",
         bgColor: "#6695ff",
         barrierSprite: "green_coral", 
-        gravity: 800,
+        gravity: 600,
         speed: 120,
-        jumpForce: 300,
-        bananasRequired: [2, 1, 2, 1], 
+        jumpForce: 200,
+        bananasRequired: [2, 3, 3, 3], 
         map: [
             "========================================",
             "=                  ||                  =",
-            "= 1  2    3  4     ||                  =",
+            "= 1P 2    3  4     ||                  =",
             "= =====       ==== ||   ===========    =",
             "=                  ||         3        =",
             "=    ===   2  1    ||    ====          =",
-            "=  3               ||        ==        =",
-            "=         ===      ||         2        =",
+            "=  3               ||                  =",
+            "=         ===      ||       == 2       =",
             "=                  ||                  =",
-            "======================= ================", 
-            "======================= ================",
+            "=======================  ===============", 
+            "=======================  ===============",
             "=                  ||                  =",
-            "= P                ||                  =",
+            "=     4            ||                  =",
             "=   ====           ||       ===        =",
-            "=                  ||        1         =",
-            "=         ====     ||                  =",
-            "=                  ||             2    =",
-            "=    3     4       ||    ======        =",
+            "=                  ||       4 1        =",
+            "=     2   ====     ||          1       =",
+            "=                  ||             1    =",
+            "=    1     4   =   ||        1=        =",
             "=                  ||                  =",
             "========================================"
         ]
@@ -95,7 +100,7 @@ const LEVELS = [
         gravity: 600,       
         speed: 160,         
         jumpForce: 400,     
-        bananasRequired: [3, 3, 3, 3], 
+        bananasRequired: [1, 1, 1, 2], 
         map: [
             "==================================================",
             "=                                                =",
@@ -130,56 +135,82 @@ scene("game", (levelIndex = 0) => {
                 sprite(config.barrierSprite, { frame: Math.floor(Math.random() * 4) }),
                 area(),
                 body({ isStatic: true }),
+                // Culling! Hides the texture out of view, physics body stays active.
+                offscreen({ hide: true, distance: 64 }), 
                 "ground"
             ],
-            // Applied area scale: 0.8 to make grabbing bananas more forgiving and seamless!
-            "1": () => [ sprite("banana1", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 1 } ],
-            "2": () => [ sprite("banana2", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 2 } ],
-            "3": () => [ sprite("banana3", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 3 } ],
-            "4": () => [ sprite("banana4", { anim: "idle" }), area({ scale: 0.8 }), "banana", { bType: 4 } ],
-            "P": () => [ "spawnpoint" ] 
+            // Bananas get fully paused (animations stop) when offscreen. HUGE fps saver.
+// Removed offscreen() from bananas to fix the disappearing bug
+            "1": () => [ sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 1 } ],
+            "2": () => [ sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 2 } ],
+            "3": () => [ sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 3 } ],
+            "4": () => [ sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 4 } ],
+// Location: inside levelConfig tiles
+            "P": () => [ "spawnpoint" ]
         }
     };
 
+    // --- SPAWNPOINT FINDER SCRIPT ---
+    let playerStartPos = vec2(40, 140); // Default fallback
+
+    // Loop through each row of the map
+    for (let y = 0; y < config.map.length; y++) {
+        // Check if "P" exists in this row string
+        const x = config.map[y].indexOf("P");
+        if (x !== -1) {
+            // Convert the row/column index into pixel coordinates (16px per tile)
+            playerStartPos = vec2(x * 16, y * 16);
+            break; // Found it, stop searching
+        }
+    }
+
+    // Now build the level
     addLevel(config.map, levelConfig);
 
-    const spawnPoint = get("spawnpoint")[0]?.pos || vec2(40, 40);
-
+    // Create the player at the calculated position
+    const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
     const player = add([
         sprite(`${config.animal}${currentForm}`),
-        // Since we anchor to "center", we offset the spawn by 8px to keep the player aligned perfectly
-        pos(spawnPoint.add(8, 8)), 
-        anchor("center"), // Centers scaling and collision calculation!
-        // --- PHYSICS GREASE ---
-        // 0.75 means the physical hitbox is 75% of the visual sprite width (leaves a nice gap on sides to slide past blocks)
-        // 0.95 keeps the vertical height almost pixel perfect to prevent floating/sinking
-        area({ scale: vec2(0.75, 0.95) }), 
+        pos(playerStartPos), 
+        area({ shape: new Rect(vec2(.8,.9), (wMult * 16) - 2, (hMult * 16) - 2) }),
         body(),
         "player"
     ]);
 
-    // --- OLD AUTO-ROOM CAMERA LOGIC ---
-    player.onUpdate(() => {
+    // Keep track of the camera so we aren't firing the setter 60 frames a second
+    let lastCamX = null;
+    let lastCamY = null;
+
+    function updateCamera() {
         const currentQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
         const currentQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
 
         const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
         const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
 
-        setCamPos(camX, camY);
+        // Only redraw the entire canvas space if the camera actually moves
+        if (camX !== lastCamX || camY !== lastCamY) {
+            setCamPos(camX, camY);
+            lastCamX = camX;
+            lastCamY = camY;
+        }
+    }
 
-        if (player.pos.y > GAME_HEIGHT + 32) {
+    player.onUpdate(() => {
+        updateCamera();
+
+        if (player.pos.y > GAME_HEIGHT) {
             go("lose", "Fell out of the world!", levelIndex);
         }
     });
 
-    // --- UI (SHRUNK) ---
+    // --- UI ---
     const uiBox = add([
         rect(90, 26, { radius: 3 }), 
         pos(5, 5),
         color(0, 0, 0),
         opacity(0.6),
-        fixed(), 
+        fixed(), // Forces it to ignore the camera movement
         z(100)
     ]);
 
@@ -187,7 +218,7 @@ scene("game", (levelIndex = 0) => {
         text("", { size: 8 }), 
         pos(10, 10),
         color(255, 255, 255),
-        fixed(),
+        fixed(), // Forces it to ignore the camera movement
         z(101)
     ]);
 
@@ -210,7 +241,9 @@ scene("game", (levelIndex = 0) => {
         player.flipX = false;
     };
     const jump = () => {
-        if (player.isGrounded()) player.jump(config.jumpForce);
+        if (player.isGrounded()) {
+            player.jump(config.jumpForce);
+        }
     };
 
     onKeyDown("left", moveLeft);
