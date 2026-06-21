@@ -48,8 +48,8 @@ loadSpriteAtlas("bananas.png", Object.fromEntries(
     ])
 ));
 
-loadSpriteAtlas("morph1.png", {
-    "morph1": {
+loadSpriteAtlas("morph.png", {
+    "morph": {
         x: 0,
         y: 0,
         width: 16,
@@ -402,14 +402,6 @@ scene("game", (levelIndex = 0) => {
             )
         }),
         body(),
-        z(10), 
-        "player"
-    ]);
-
-    function updateCameraAndMap( {
-        const newQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
-        const newQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
-
         z(10), // Ensures the player will render slightly above level geometry & particles
         {
             isFrozen: false
@@ -420,7 +412,7 @@ scene("game", (levelIndex = 0) => {
     function spawnEffect(spawnPosition) {
         // 1. Create the effect object at the target position
         const fx = add([
-            sprite("morph1"),
+            sprite("morph"),
             pos(spawnPosition),
             anchor("topleft"), // Centers the sprite on the player's coordinates
             z(15),
@@ -441,6 +433,10 @@ scene("game", (levelIndex = 0) => {
 
     let lastCamX = null;
     let lastCamY = null;
+
+    function updateCameraAndMap() {
+        const newQuadX = Math.floor(player.pos.x / VIEW_WIDTH);
+        const newQuadY = Math.floor(player.pos.y / VIEW_HEIGHT);
 
         if (newQuadX !== currentQuadX || newQuadY !== currentQuadY) {
             currentQuadX = newQuadX;
