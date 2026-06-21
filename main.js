@@ -698,6 +698,21 @@ scene("win", () => {
     });
 });
 
+loadSprite("help-menu", "help-menu.png");
+scene("help", () => {
+    add([
+        sprite("help-menu"),
+        pos(0, 0),
+        area(),
+        "help-menu"
+    ]);
+
+    function startGame() { go("game", 0); };
+
+    onKeyPress("enter", startGame);
+    onClick("help-menu", startGame);
+});
+
 loadSprite("start-bkgd", "start-menu-bkgd.png");
 scene("start", () => {
     add([
@@ -720,14 +735,22 @@ scene("start", () => {
         circle(8),
         area(),
         color(255, 255, 255),
-        opacity(0)
+        opacity(0),
+        "gitButton"
     ]);
 
-    function startGame() { go("game", 0); };
+    function startHelp() { go("help"); };
 
-    onKeyPress("enter", startGame);
-    onClick("startButton", startGame);
-    startButton.onTouchStart(startGame);
+    onKeyPress("enter", startHelp);
+    onClick("startButton", startHelp);
+    startButton.onTouchStart(startHelp);
+
+    onKeyPress("i", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+    onClick("gitButton", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
 
 });
 
