@@ -32,8 +32,8 @@ const ANIMAL_SIZES = {
     "shark": [2, 1],
     "lizard": [2, 1],
     "monkey": [1, 2],
-    "dinosaur": [1.5, 1.5], 
-    "primates": [1, 1] 
+    "dinosaur": [1.5, 1.5],
+    "primates": [1, 1]
 };
 
 const BANANA_NAMES = {
@@ -43,7 +43,7 @@ const BANANA_NAMES = {
 // --- SPRITE LOADING ---
 loadSpriteAtlas("bananas.png", Object.fromEntries(
     Array.from({ length: 4 }, (_, i) => [
-        `banana${i + 1}`, 
+        `banana${i + 1}`,
         { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
     ])
 ));
@@ -54,8 +54,8 @@ Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
 
     loadSpriteAtlas(`${name}.png`, Object.fromEntries(
         Array.from({ length: 4 }, (_, i) => [
-            `${name}${i + 1}`, 
-            { x: i * sliceWidth, y: 0, width: sliceWidth, height: sliceHeight*4, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
+            `${name}${i + 1}`,
+            { x: i * sliceWidth, y: 0, width: sliceWidth, height: sliceHeight * 4, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
         ])
     ));
 });
@@ -73,11 +73,11 @@ const LEVELS = [
         // Level 0: Fish - Top-Down Puzzle
         animal: "fish",
         bgColor: "#6695ff",
-        barrierSprite: "green_coral", 
-        gravity: 0, 
+        barrierSprite: "green_coral",
+        gravity: 0,
         speed: 120,
         jumpForce: 0,
-        bananasRequired: [1, 1, 1, 1], 
+        bananasRequired: [1, 1, 1, 1],
         map: [
             "========================================",
             "=                  ||                  =",
@@ -95,11 +95,11 @@ const LEVELS = [
         // Level 1: Shark - Top-Down Puzzle
         animal: "shark",
         bgColor: "#002a66",
-        barrierSprite: "pink_coral", 
-        gravity: 0, 
-        speed: 160,         
-        jumpForce: 0,     
-        bananasRequired: [1, 1, 1, 1], 
+        barrierSprite: "pink_coral",
+        gravity: 0,
+        speed: 160,
+        jumpForce: 0,
+        bananasRequired: [1, 1, 1, 1],
         map: [
             "==================================================",
             "=                  ||                            =",
@@ -117,11 +117,11 @@ const LEVELS = [
         // Level 2: Lizard - Platformer (Old Fish Puzzle)
         animal: "lizard",
         bgColor: "#2d231e",
-        barrierSprite: "cave", 
+        barrierSprite: "cave",
         gravity: 600,
         speed: 120,
         jumpForce: 200,
-        bananasRequired: [2, 3, 3, 4], 
+        bananasRequired: [2, 3, 3, 4],
         map: [
             "========================================",
             "=                  ||                  =",
@@ -132,7 +132,7 @@ const LEVELS = [
             "=  3               ||                  =",
             "=         ===               == 2       =",
             "=                                      =",
-            "=======================   ==============", 
+            "=======================   ==============",
             "=======================   ==============",
             "=                  ||                  =",
             "=     4            ||                  =",
@@ -149,11 +149,11 @@ const LEVELS = [
         // Level 3: dinosaur - Platformer 
         animal: "dinosaur",
         bgColor: "#1c1410",
-        barrierSprite: "cave", 
-        gravity: 600,       
-        speed: 160,         
-        jumpForce: 400,     
-        bananasRequired: [1, 1, 1, 2], 
+        barrierSprite: "cave",
+        gravity: 600,
+        speed: 160,
+        jumpForce: 400,
+        bananasRequired: [1, 1, 1, 2],
         map: [
             "==================================================",
             "= V V V                                    V V V =",
@@ -171,28 +171,31 @@ const LEVELS = [
         // Level 4: Primates - Platformer Blank Space
         animal: "primates",
         bgColor: "#87ceeb",
-        barrierSprite: "grass_block", 
-        gravity: 600,       
-        speed: 150,         
-        jumpForce: 300,     
-        bananasRequired: [1, 1, 1, 1], 
+        barrierSprite: "grass_block",
+        gravity: 600,
+        speed: 150,
+        jumpForce: 300,
+        bananasRequired: [1, 1, 1, 1],
         map: [
-            "==================================================",
-            "=                                                =",
-            "=                                                =",
-            "=                                                =",
-            "=                                                =",
-            "= P  1         2         3         4             =",
-            "=================================================="
+            "========================================",
+            "=                  ||                  =",
+            "=            k==   ||                  =",
+            "=        k   k   ==||                  =",
+            "=        k    k    ||                  =",
+            "=            3k    ||                  =",
+            "=     ====         ||                  =",
+            "=                  ||                  =",
+            "= P                ||                  =",
+            "========================================"
         ]
     }
 ];
 
 // --- MAIN GAME SCENE ---
 scene("game", (levelIndex = 0) => {
-    
+
     const config = LEVELS[levelIndex];
-    if (!config) { go("win"); return; } 
+    if (!config) { go("win"); return; }
 
     setBackground(Color.fromHex(config.bgColor));
     setGravity(config.gravity);
@@ -200,7 +203,7 @@ scene("game", (levelIndex = 0) => {
     const GAME_WIDTH = config.map[0].length * 16;
     const GAME_HEIGHT = config.map.length * 16;
 
-    let currentForm = 1; 
+    let currentForm = 1;
     let bananasEaten = 0;
 
     const levelConfig = {
@@ -214,7 +217,7 @@ scene("game", (levelIndex = 0) => {
                     sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
                     area(),
                     body({ isStatic: true }),
-                    offscreen({ hide: true, distance: 64 }), 
+                    offscreen({ hide: true, distance: 64 }),
                     "ground"
                 ];
             },
@@ -225,7 +228,7 @@ scene("game", (levelIndex = 0) => {
                     sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
                     area(),
                     body({ isStatic: true }),
-                    offscreen({ hide: true, distance: 64 }), 
+                    offscreen({ hide: true, distance: 64 }),
                     "ground"
                 ];
             },
@@ -233,19 +236,19 @@ scene("game", (levelIndex = 0) => {
             // --- UPWARD SPIKES (Stalagmites) ---
             "A": () => [ // BASE UP
                 sprite("cave", { frame: 4, flipY: false }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }), 
+                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
                 body({ isStatic: true }),
                 "spike"
             ],
             "a": () => [ // MID UP
                 sprite("cave", { frame: 2, flipY: false }),
-                area({ shape: new Rect(vec2(2, 0), 12, 16) }), 
+                area({ shape: new Rect(vec2(2, 0), 12, 16) }),
                 body({ isStatic: true }),
                 "spike"
             ],
             "^": () => [ // SHARP UP
                 sprite("cave", { frame: 0, flipY: false }),
-                area({ shape: new Rect(vec2(2, 2), 12, 14) }), 
+                area({ shape: new Rect(vec2(2, 2), 12, 14) }),
                 body({ isStatic: true }),
                 "spike"
             ],
@@ -271,16 +274,16 @@ scene("game", (levelIndex = 0) => {
             ],
 
             // --- COLLECTIBLES ---
-            "1": () => [ sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 1 } ],
-            "2": () => [ sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 2 } ],
-            "3": () => [ sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 3 } ],
-            "4": () => [ sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 4 } ],
-            "P": () => [ "spawnpoint" ]
+            "1": () => [sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
+            "2": () => [sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
+            "3": () => [sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
+            "4": () => [sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }],
+            "P": () => ["spawnpoint"]
         }
     };
 
     // --- SPAWNPOINT FINDER SCRIPT ---
-    let playerStartPos = vec2(40, 140); 
+    let playerStartPos = vec2(40, 140);
 
     for (let y = 0; y < config.map.length; y++) {
         const x = config.map[y].indexOf("P");
@@ -335,20 +338,20 @@ scene("game", (levelIndex = 0) => {
 
     // --- PLAYER CREATION ---
     const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
-    
+
     const isWide = wMult > 1;
-    const paddingX = isWide ? 4 : 1; 
+    const paddingX = isWide ? 4 : 1;
     const paddingY = 2;
 
     const player = add([
         sprite(`${config.animal}${currentForm}`, { anim: "idle" }),
-        pos(playerStartPos), 
-        area({ 
+        pos(playerStartPos),
+        area({
             shape: new Rect(
-                vec2(paddingX, paddingY), 
-                (wMult * 16) - (paddingX * 2), 
+                vec2(paddingX, paddingY),
+                (wMult * 16) - (paddingX * 2),
                 (hMult * 16) - (paddingY * 2)
-            ) 
+            )
         }),
         body(),
         z(10), // Ensures the player will render slightly above level geometry & particles
@@ -374,19 +377,19 @@ scene("game", (levelIndex = 0) => {
 
     // --- UI ---
     const uiBox = add([
-        rect(130, 26, { radius: 3 }), 
+        rect(130, 26, { radius: 3 }),
         pos(5, 5),
         color(0, 0, 0),
         opacity(0.6),
-        fixed(), 
+        fixed(),
         z(100)
     ]);
 
     const uiText = add([
-        text("", { size: 8 }), 
+        text("", { size: 8 }),
         pos(10, 10),
         color(255, 255, 255),
-        fixed(), 
+        fixed(),
         z(101)
     ]);
 
@@ -394,7 +397,7 @@ scene("game", (levelIndex = 0) => {
         const required = config.bananasRequired[currentForm - 1] - bananasEaten;
         const currentName = FORM_NAMES[`${config.animal}${currentForm}`] || `${config.animal} ${currentForm}`;
         const bananaName = BANANA_NAMES[currentForm] || `Banana ${currentForm}`;
-        
+
         uiText.text = `Form: ${currentName}\nNeed: ${required}x ${bananaName}`;
     }
     updateUI();
@@ -413,13 +416,13 @@ scene("game", (levelIndex = 0) => {
         let dy = 0;
         if (keys.left.some(k => isKeyDown(k))) dx -= 1;
         if (keys.right.some(k => isKeyDown(k))) dx += 1;
-        
+
         if (config.gravity === 0) {
             if (keys.up.some(k => isKeyDown(k))) dy -= 1;
             if (keys.down.some(k => isKeyDown(k))) dy += 1;
         }
-        
-        return vec2(dx, dy).unit(); 
+
+        return vec2(dx, dy).unit();
     }
 
     player.onUpdate(() => {
@@ -429,7 +432,7 @@ scene("game", (levelIndex = 0) => {
 
         if (dir.x !== 0 || dir.y !== 0) {
             player.move(dir.scale(config.speed));
-            
+
             if (dir.x < 0) player.flipX = true;
             if (dir.x > 0) player.flipX = false;
         }
@@ -444,7 +447,7 @@ scene("game", (levelIndex = 0) => {
             player.jump(config.jumpForce);
         }
     });
-    
+
     onKeyPress("p", () => debug.inspect = !debug.inspect);
     onKeyPress("enter", () => go("game", levelIndex));
 
@@ -463,7 +466,7 @@ scene("game", (levelIndex = 0) => {
                 bananasEaten = 0;
 
                 if (currentForm > 4) {
-                    go("game", levelIndex + 1); 
+                    go("game", levelIndex + 1);
                 } else {
                     player.use(sprite(`${config.animal}${currentForm}`, { anim: "idle" }));
                 }
@@ -478,7 +481,7 @@ scene("game", (levelIndex = 0) => {
 // --- LOSE SCENE ---
 scene("lose", (reason, levelIndex) => {
     setBackground(Color.fromHex("#000000"));
-    
+
     add([
         text("Game Over\n" + reason + "\n\n[Press Enter to Restart]", { size: 14, align: "center" }),
         pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
@@ -492,7 +495,7 @@ scene("lose", (reason, levelIndex) => {
 // --- WIN SCENE ---
 scene("win", () => {
     setBackground(Color.fromHex("#000000"));
-    
+
     add([
         text("You Evolved!\nFully Completed!", { size: 16, align: "center" }),
         pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2),
