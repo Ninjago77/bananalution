@@ -10,9 +10,31 @@ Level 3: 45.52s Oliver
 ---
 ## How to Run
 
+*make sure 
+
 `npx http-server -c-1`
 
 ---
+
+---
 ## Credits
-https://pixelgnome.itch.io/fish
+**Programmers**:  
+Shanvanth A   
+Maneesh G
+
+**Hardware** (And software for hardware):  
+Ayush S
+
+
+**Art**:
+Ayush S  
+Maneesh G  
+
+
+Used a custom(Animated by Ayush) fork of : https://pixelgnome.itch.io/fish
+
+
+---
+
+## AI use
 
