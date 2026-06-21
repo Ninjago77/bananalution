@@ -1,38 +1,47 @@
-//MAKE SURE YOUR PINS ARE ALLIGNED WITH THESE FOLLOWING STUFF! any 5v and gnd work!
-const int SW_PIN = A2;  //Button
-const int VRX_PIN = A3; // X-axis
-const int VRY_PIN = A4; // Y-axis
+const int SW_PIN = A2;
+const int VRX_PIN = A3;
+const int VRY_PIN = A4;
 
-//center should be around 512. can modify based on preferences
 const int THRESHOLD_LOW = 300;
 const int THRESHOLD_HIGH = 700;
 
+bool lastW = false, lastS = false, lastA = false, lastD = false, lastSpace = false;
+
 void setup() {
-  Serial.begin(9600);
-  pinMode(SW_PIN, INPUT_PULLUP); 
+  Serial.begin(115200); 
+  pinMode(SW_PIN, INPUT_PULLUP);
 }
 
 void loop() {
   int xVal = analogRead(VRX_PIN);
   int yVal = analogRead(VRY_PIN);
-  bool switchPressed = (digitalRead(SW_PIN) == LOW);
+  bool spacePressed = (digitalRead(SW_PIN) == LOW);
 
-  if (yVal < THRESHOLD_LOW) {
-    Serial.println("W");
-  } else if (yVal > THRESHOLD_HIGH) {
-    Serial.println("S");
+  bool currentW = (yVal < THRESHOLD_LOW);
+  bool currentS = (yVal > THRESHOLD_HIGH);
+  bool currentA = (xVal < THRESHOLD_LOW);
+  bool currentD = (xVal > THRESHOLD_HIGH);
+
+  if (currentW != lastW) {
+    Serial.println(currentW ? "W_DOWN" : "W_UP");
+    lastW = currentW;
+  }
+  if (currentS != lastS) {
+    Serial.println(currentS ? "S_DOWN" : "S_UP");
+    lastS = currentS;
+  }
+  if (currentA != lastA) {
+    Serial.println(currentA ? "A_DOWN" : "A_UP");
+    lastA = currentA;
+  }
+  if (currentD != lastD) {
+    Serial.println(currentD ? "D_DOWN" : "D_UP");
+    lastD = currentD;
+  }
+  if (spacePressed != lastSpace) {
+    Serial.println(spacePressed ? "SPACE_DOWN" : "SPACE_UP");
+    lastSpace = spacePressed;
   }
 
-  if (xVal < THRESHOLD_LOW) {
-    Serial.println("A");
-  } else if (xVal > THRESHOLD_HIGH) {
-    Serial.println("D");
-  }
-
-  if (switchPressed) {
-    Serial.println("SPACE");
-    delay(200); 
-  }
-
-  delay(50); 
+  delay(10); 
 }
