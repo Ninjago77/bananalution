@@ -78,14 +78,17 @@ Option 2: Clone the repository, and make sure Node.js is installed. Then run the
 
 
 ## Credits
-**Programming**:  
+**Programming**: 
+<br>
 Shanvanth A   
 Maneesh G
 
-**Hardware & Related Software**
+**Hardware & Related Software**:
+<br>
 Ayush S
 
 **Art**:
+<br>
 Ayush S  
 Maneesh G  
 
