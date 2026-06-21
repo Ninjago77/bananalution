@@ -3,6 +3,9 @@ Desccriptions here
 ---
 ## How to Play
 ---
+## Records 
+Level 3: 45.52s Oliver
+---
 ## AI Use
 ---
 ## How to Run
