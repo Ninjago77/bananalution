@@ -109,7 +109,7 @@ const LEVELS = [
         gravity: 0,
         speed: 160,
         jumpForce: 0,
-        bananasRequired: [6, 6, 6, 6], 
+        bananasRequired: [6, 6, 6, 6],
         map: [
             "============================================================",
             "= P        =                 =         ==                  =",
@@ -199,6 +199,29 @@ const LEVELS = [
             "=================================================="
         ]
     },
+    // Level 4: Primates - Platformer Blank Space
+    {
+        animal: "primates",
+        bgColor: "#87ceeb",
+        barrierSprite: "grass_block",
+        gravity: 600,
+        speed: 100,
+        jumpForce: 255,
+        bananasRequired: [1, 1, 1, 1],
+        map: [
+            "========================================",
+            "=  K2            = ||          1       =",
+            "=  K     k   K==            K ===      =",
+            "=  K     K   K   ==||=      K       == =",
+            "=        K   3K    ||   =         =    =",
+            "=        K    K    ||    = k     =     =",
+            "=      ====        ||      K =         =",
+            "=                  ||      K ===       =",
+            "= P                ||      =   4=      =",
+            "========================================"
+        ]
+    },
+    /*
     {
         animal: "primates",
         bgColor: "#87ceeb",
@@ -220,7 +243,10 @@ const LEVELS = [
             "========================================"
         ]
     }
+    */
 ];
+
+
 
 // --- MAIN GAME SCENE ---
 scene("game", (levelIndex = 0) => {
@@ -339,7 +365,7 @@ scene("game", (levelIndex = 0) => {
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
-        const particleCount = 40; 
+        const particleCount = 40;
 
         for (let i = 0; i < particleCount; i++) {
             const p = add([
@@ -437,7 +463,10 @@ scene("game", (levelIndex = 0) => {
             setCamPos(camX, camY);
         }
     }
-    
+
+    // Trigger very first screen load immediately
+    updateCameraAndMap();
+
     // --- UI ---
     const uiBox = add([
         rect(130, 26, { radius: 3 }),
@@ -682,7 +711,7 @@ scene("game", (levelIndex = 0) => {
     }
 
     const CLIMB_SPEED = 120;
-    const SLIDE_SPEED = 5; 
+    const SLIDE_SPEED = 5;
 
     player.onCollide("vine", () => { isTouchingVine = true; });
     player.onCollideEnd("vine", () => { isTouchingVine = false; });
@@ -846,5 +875,61 @@ scene("win", () => {
     });
 });
 
+loadSprite("help-menu", "help-menu.png");
+scene("help", () => {
+    add([
+        sprite("help-menu"),
+        pos(0, 0),
+        area(),
+        "help-menu"
+    ]);
 
-go("game", 0);
+    function startGame() { go("game", 0); };
+
+    onKeyPress("enter", startGame);
+    onClick("help-menu", startGame);
+});
+
+loadSprite("start-bkgd", "start-menu-bkgd.png");
+scene("start", () => {
+    add([
+        sprite("start-bkgd"),
+        pos(0, 0),
+        area(),
+    ]);
+
+    const startButton = add([
+        pos(120, 102),
+        rect(80, 35),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "startButton"
+    ]);
+
+    const gitButton = add([
+        pos(160, 148),
+        circle(8),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "gitButton"
+    ]);
+
+    function startHelp() { go("help"); };
+
+    onKeyPress("enter", startHelp);
+    onClick("startButton", startHelp);
+    startButton.onTouchStart(startHelp);
+
+    onKeyPress("i", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+    onClick("gitButton", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+
+});
+
+
+go("start");
