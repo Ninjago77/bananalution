@@ -28,18 +28,28 @@ To setup
 
 ---
 Screenshots
-
+---
 Main Menu
-
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/ebbfe19f-85ae-4c09-95aa-a47fab73ce7b" />
+---
 Level 1
-
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/7f885532-7659-46d5-8b9c-bf86f1282d0d" />
+---
 Level 2
-
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/47a670e4-7a6c-40bc-9c40-3f55a1c5b5e6" />
+---
 Level 3
-
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/2ceec088-c562-41b2-aa12-b0459368328f" />
+---
 level 4
-
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/e13ff30e-00d3-476a-b1b9-b1336b540eea" />
+---
+level 5
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/99fd25d4-dbd2-4491-b0dd-8ab6abe93407" />
+---
 Win screen
+<img width="2880" height="1442" alt="image" src="https://github.com/user-attachments/assets/7427e284-ba0e-445b-b57a-db241cb72722" />
+---
 
 Pcb CAD (files to be uploaded later after improvements)
 <img width="295" height="563" alt="image" src="https://github.com/user-attachments/assets/2786526a-cc73-4060-b2b3-3c5e8afca972" />
