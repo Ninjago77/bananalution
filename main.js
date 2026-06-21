@@ -21,6 +21,8 @@ loadRoot("/assets/");
 const FORM_NAMES = {
     "fish1": "Goldfish", "fish2": "Bass Fish", "fish3": "Powder Blue Fish", "fish4": "Discus Fish",
     "shark1": "Thrasher", "shark2": "Blåhaj", "shark3": "Whale Shark", "shark4": "Hammerhead Shark",
+    "lizard1": "Gecko", "lizard2": "Chameleon", "lizard3": "Iguana", "lizard4": "Komodo Dragon",
+    "monkey1": "Lemur", "monkey2": "Macaque", "monkey3": "Chimp", "monkey4": "Gorilla",
 };
 
 const BANANA_NAMES = {
@@ -30,9 +32,8 @@ const BANANA_NAMES = {
 const ANIMAL_SIZES = {
     "fish": [1, 1],
     "shark": [2, 1],
-    // "lizard": [2, 1],
-    // "dinosaur": [1.5, 1.5],
-    // "monkey": [1, 2],
+    "lizard": [2, 1],
+    "monkey": [1, 2],
 };
 
 // --- SPRITE LOADING ---
@@ -55,58 +56,123 @@ Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
     ));
 });
 
-loadSprite("green_coral", "green_coral.png", {
-    sliceX: 2,
-    sliceY: 2,
-});
+loadSprite("green_coral", "green_coral.png", { sliceX: 2, sliceY: 2 });
+loadSprite("pink_coral", "pink_coral.png", { sliceX: 2, sliceY: 2 });
+loadSprite("cave", "cave.png", { sliceX: 2, sliceY: 4 });
 
 // --- LEVEL CONFIGURATIONS ---
 const LEVELS = [
     {
+        // Level 0: Fish - Top-Down Puzzle
         animal: "fish",
         bgColor: "#6695ff",
         barrierSprite: "green_coral", 
-        gravity: 600,
+        gravity: 0, // No gravity for top-down
         speed: 120,
-        jumpForce: 200,
-        bananasRequired: [2, 3, 3, 3], 
+        jumpForce: 0,
+        bananasRequired: [1, 1, 1, 1], 
         map: [
             "========================================",
             "=                  ||                  =",
-            "= 1P 2    3  4     ||                  =",
-            "= =====       ==== ||   ===========    =",
-            "=                  ||         3        =",
-            "=    ===   2  1    ||    ====          =",
-            "=  3               ||                  =",
-            "=         ===      ||       == 2       =",
+            "= P   1     ====   ||  3    =======    =",
+            "=     =     =      ||       =          =",
+            "=======     =      ||========    ==    =",
+            "=           =               =          =",
+            "=    ===           ||       =   4      =",
+            "=     =    2       ||                  =",
             "=                  ||                  =",
-            "=======================  ===============", 
-            "=======================  ===============",
+            "========================================"
+        ]
+    },
+    {
+        // Level 1: Shark - Top-Down Puzzle
+        animal: "shark",
+        bgColor: "#002a66",
+        barrierSprite: "pink_coral", 
+        gravity: 0, // No gravity for top-down
+        speed: 160,         
+        jumpForce: 0,     
+        bananasRequired: [1, 1, 1, 1], 
+        map: [
+            "==================================================",
+            "=                  ||                            =",
+            "=  P               ||                            =",
+            "= ======   =====   ||  =========   ===========   =",
+            "=  =   1       =   ||          =           =     =",
+            "=  =   =   =   =     =======   =========   =  4  =",
+            "=  =   =   =   =           =           =   =     =",
+            "=  =====   =====   ||===   =========   =   =     =",
+            "=          2       ||  3               =         =",
+            "=================================================="
+        ]
+    },
+    {
+        // Level 2: Lizard - Platformer (Old Fish Puzzle)
+        animal: "lizard",
+        bgColor: "#2d231e",
+        barrierSprite: "cave", 
+        gravity: 600,
+        speed: 120,
+        jumpForce: 200,
+        bananasRequired: [2, 3, 3, 4], 
+        map: [
+            "========================================",
+            "=                  ||                  =",
+            "=  1P  2    2       4                  =",
+            "=  ====            ||         =====    =",
+            "=            =     ||           3      =",
+            "=    ===   3    1  ||    ====          =",
+            "=  3               ||                  =",
+            "=         ===               == 2       =",
+            "=                                      =",
+            "=======================   ==============", 
+            "=======================   ==============",
             "=                  ||                  =",
             "=     4            ||                  =",
             "=   ====           ||       ===        =",
             "=                  ||       4 1        =",
             "=     2   ====     ||          1       =",
             "=                  ||             1    =",
-            "=    1     4   =   ||        1=        =",
-            "=                  ||                  =",
+            "=    1     4   =             1=        =",
+            "=                                      =",
             "========================================"
         ]
     },
     {
-        animal: "shark",
-        bgColor: "#002a66",
-        barrierSprite: "green_coral", 
+        // Level 3: dinosaur - Platformer (Old Shark Puzzle with Spikes)
+        animal: "dinosaur",
+        bgColor: "#1c1410",
+        barrierSprite: "cave", 
         gravity: 600,       
         speed: 160,         
         jumpForce: 400,     
         bananasRequired: [1, 1, 1, 2], 
         map: [
             "==================================================",
-            "=                                                =",
+            "= V V V                                    V V V =",
+            "= V V V                                    V V V =",
             "= P   1   2   3   4      4   3   2   1           =",
             "====== === === === ====== === === === === =======",
+            "=      A   A   A          A   A   A   A          =",
+            "=================================================="
+        ]
+    },
+    {
+        // Level 4: Primates - Platformer Blank Space
+        animal: "primates",
+        bgColor: "#87ceeb",
+        barrierSprite: "cave", 
+        gravity: 600,       
+        speed: 150,         
+        jumpForce: 300,     
+        bananasRequired: [1, 1, 1, 1], 
+        map: [
+            "==================================================",
             "=                                                =",
+            "=                                                =",
+            "=                                                =",
+            "=                                                =",
+            "= P  1         2         3         4             =",
             "=================================================="
         ]
     }
@@ -127,25 +193,67 @@ scene("game", (levelIndex = 0) => {
     let currentForm = 1; 
     let bananasEaten = 0;
     
+    // Dynamic Frame Generator for Auto-Stretching Spikes
+    const getSpikeFrame = (type, pos) => {
+        const gx = Math.round(pos.x / 16);
+        const gy = Math.round(pos.y / 16);
+        
+        const isTop = gy <= 0 || config.map[gy - 1][gx] !== type;
+        const isBottom = gy >= config.map.length - 1 || config.map[gy + 1][gx] !== type;
+        
+        if (type === "A") { // Stalagmite (Growing up)
+            if (isTop) return 0; // Tip frame
+            if (isBottom) return 6; // Base frame
+            return 2; // Middle stretch frame
+        } else { // Stalactite (Hanging down)
+            if (isBottom) return 4; // Downward Tip frame
+            if (isTop) return 6; // Base frame
+            return 2; // Middle stretch frame
+        }
+    };
+
     const levelConfig = {
         tileWidth: 16,
         tileHeight: 16,
         tiles: {
-            "=": () => [
-                sprite(config.barrierSprite, { frame: Math.floor(Math.random() * 4) }),
-                area(),
+            "=": () => {
+                const isCave = config.barrierSprite === "cave";
+                const frames = isCave ? [1, 3, 5, 7] : [0, 1, 2, 3];
+                return [
+                    sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
+                    area(),
+                    body({ isStatic: true }),
+                    offscreen({ hide: true, distance: 64 }), 
+                    "ground"
+                ];
+            },
+            "|": () => { // Handling old map specific walls 
+                const isCave = config.barrierSprite === "cave";
+                const frames = isCave ? [1, 3, 5, 7] : [0, 1, 2, 3];
+                return [
+                    sprite(config.barrierSprite, { frame: frames[Math.floor(Math.random() * frames.length)] }),
+                    area(),
+                    body({ isStatic: true }),
+                    offscreen({ hide: true, distance: 64 }), 
+                    "ground"
+                ];
+            },
+            "A": (pos) => [
+                sprite("cave", { frame: getSpikeFrame("A", pos) }),
+                area({ shape: new Rect(vec2(2, 2), 12, 14) }), // Slightly forgiving hitbox
                 body({ isStatic: true }),
-                // Culling! Hides the texture out of view, physics body stays active.
-                offscreen({ hide: true, distance: 64 }), 
-                "ground"
+                "spike"
             ],
-            // Bananas get fully paused (animations stop) when offscreen. HUGE fps saver.
-// Removed offscreen() from bananas to fix the disappearing bug
+            "V": (pos) => [
+                sprite("cave", { frame: getSpikeFrame("V", pos) }),
+                area({ shape: new Rect(vec2(2, 0), 12, 14) }),
+                body({ isStatic: true }),
+                "spike"
+            ],
             "1": () => [ sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 1 } ],
             "2": () => [ sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 2 } ],
             "3": () => [ sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 3 } ],
             "4": () => [ sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1,1), 14, 14) }), "banana", { bType: 4 } ],
-// Location: inside levelConfig tiles
             "P": () => [ "spawnpoint" ]
         }
     };
@@ -153,30 +261,39 @@ scene("game", (levelIndex = 0) => {
     // --- SPAWNPOINT FINDER SCRIPT ---
     let playerStartPos = vec2(40, 140); // Default fallback
 
-    // Loop through each row of the map
     for (let y = 0; y < config.map.length; y++) {
-        // Check if "P" exists in this row string
         const x = config.map[y].indexOf("P");
         if (x !== -1) {
-            // Convert the row/column index into pixel coordinates (16px per tile)
             playerStartPos = vec2(x * 16, y * 16);
-            break; // Found it, stop searching
+            break;
         }
     }
 
-    // Now build the level
     addLevel(config.map, levelConfig);
 
-    // Create the player at the calculated position
+    // --- PLAYER CREATION (FIXED HITBOX) ---
     const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
+    
+    // Create a "buffer" for 2-wide animals so they don't snag on walls
+    const isWide = wMult > 1;
+    const paddingX = isWide ? 4 : 1; 
+    const paddingY = 2;
+
     const player = add([
-        sprite(`${config.animal}${currentForm}`, { anim: "idle" }), // Added { anim: "idle" }
+        sprite(`${config.animal}${currentForm}`, { anim: "idle" }),
         pos(playerStartPos), 
-        area({ shape: new Rect(vec2(.8,.9), (wMult * 16) - 2, (hMult * 16) - 2) }),
+        // The Rect is positioned at (paddingX, paddingY) and narrowed by paddingX * 2
+        area({ 
+            shape: new Rect(
+                vec2(paddingX, paddingY), 
+                (wMult * 16) - (paddingX * 2), 
+                (hMult * 16) - (paddingY * 2)
+            ) 
+        }),
         body(),
         "player"
     ]);
-    // Keep track of the camera so we aren't firing the setter 60 frames a second
+
     let lastCamX = null;
     let lastCamY = null;
 
@@ -187,7 +304,6 @@ scene("game", (levelIndex = 0) => {
         const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
         const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
 
-        // Only redraw the entire canvas space if the camera actually moves
         if (camX !== lastCamX || camY !== lastCamY) {
             setCamPos(camX, camY);
             lastCamX = camX;
@@ -198,7 +314,7 @@ scene("game", (levelIndex = 0) => {
     player.onUpdate(() => {
         updateCamera();
 
-        if (player.pos.y > GAME_HEIGHT) {
+        if (player.pos.y > GAME_HEIGHT + 32) {
             go("lose", "Fell out of the world!", levelIndex);
         }
     });
@@ -209,7 +325,7 @@ scene("game", (levelIndex = 0) => {
         pos(5, 5),
         color(0, 0, 0),
         opacity(0.6),
-        fixed(), // Forces it to ignore the camera movement
+        fixed(), 
         z(100)
     ]);
 
@@ -217,7 +333,7 @@ scene("game", (levelIndex = 0) => {
         text("", { size: 8 }), 
         pos(10, 10),
         color(255, 255, 255),
-        fixed(), // Forces it to ignore the camera movement
+        fixed(), 
         z(101)
     ]);
 
@@ -230,39 +346,70 @@ scene("game", (levelIndex = 0) => {
     }
     updateUI();
 
-    // --- CONTROLS ---
-    const moveLeft = () => {
-        player.move(-config.speed, 0);
-        player.flipX = true;
+    // --- CONSOLIDATED CONTROLS ---
+    const keys = {
+        left: ["left", "a"],
+        right: ["right", "d"],
+        up: ["up", "w"],
+        down: ["down", "s"],
+        jump: ["space", "up", "w", "space"]
     };
-    const moveRight = () => {
-        player.move(config.speed, 0);
-        player.flipX = false;
-    };
-    const jump = () => {
-        if (player.isGrounded()) {
+
+    function getInputDirection() {
+        let dx = 0;
+        let dy = 0;
+        if (keys.left.some(k => isKeyDown(k))) dx -= 1;
+        if (keys.right.some(k => isKeyDown(k))) dx += 1;
+        
+        // Top-Down movement (Fish/Shark)
+        if (config.gravity === 0) {
+            if (keys.up.some(k => isKeyDown(k))) dy -= 1;
+            if (keys.down.some(k => isKeyDown(k))) dy += 1;
+        }
+        
+        return vec2(dx, dy).unit(); // Normalizes diagonal speed
+    }
+
+    player.onUpdate(() => {
+        updateCamera();
+
+        const dir = getInputDirection();
+
+        // Perform a single move call per frame to prevent clipping
+        if (dir.x !== 0 || dir.y !== 0) {
+            player.move(dir.scale(config.speed));
+            
+            // Visual flip
+            if (dir.x < 0) player.flipX = true;
+            if (dir.x > 0) player.flipX = false;
+        }
+
+        if (player.pos.y > GAME_HEIGHT + 64) {
+            go("lose", "Fell into the abyss!", levelIndex);
+        }
+    });
+
+    // Jump Logic (Platformer only)
+    onKeyPress((k) => {
+        if (keys.jump.includes(k) && config.gravity > 0 && player.isGrounded()) {
             player.jump(config.jumpForce);
         }
-    };
-
-    onKeyDown("left", moveLeft);
-    onKeyDown("a", moveLeft);
-    
-    onKeyDown("right", moveRight);
-    onKeyDown("d", moveRight);
-    
-    onKeyPress("up", jump);
-    onKeyPress("w", jump);
-    onKeyPress("space", jump);
-
+    });
+    // Keep Debug/Restart shortcuts
     onKeyPress("p", () => debug.inspect = !debug.inspect);
-    onKeyPress("enter", () => go("game", levelIndex)); 
+    onKeyPress("enter", () => go("game", levelIndex));
 
-    // --- EVOLUTION ---
+    // --- HAZARDS & EVOLUTION ---
+    player.onCollide("spike", () => {
+        go("lose", "Impaled on a spike!", levelIndex);
+    });
+
     player.onCollide("banana", (banana) => {
         if (banana.bType === currentForm) {
             destroy(banana);
             bananasEaten++;
+
+            console.log(bananasEaten, config, levelIndex);
 
             if (bananasEaten >= config.bananasRequired[currentForm - 1]) {
                 currentForm++;
@@ -271,7 +418,7 @@ scene("game", (levelIndex = 0) => {
                 if (currentForm > 4) {
                     go("game", levelIndex + 1); 
                 } else {
-                    player.use(sprite(`${config.animal}${currentForm}`, { anim: "idle" })); // Added { anim: "idle" }
+                    player.use(sprite(`${config.animal}${currentForm}`, { anim: "idle" }));
                 }
             }
             updateUI();
@@ -306,6 +453,4 @@ scene("win", () => {
         color(50, 255, 50)
     ]);
 });
-
-
-go("game", 1);
+go("game", 2);
