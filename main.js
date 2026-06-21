@@ -66,11 +66,12 @@ loadSprite("dust", "dust.png", { sliceX: 2, sliceY: 2 });
 loadSprite("bubble", "bubble.png", { sliceX: 2, sliceY: 2 });
 loadSprite("grass_block", "minecraft_grass_block.png", { sliceX: 2, sliceY: 2 });
 loadSprite("cave", "cave.png", { sliceX: 2, sliceY: 4 });
+loadSprite("vine", "vines.png", { sliceX: 1, sliceY: 2 });
 
 // --- LEVEL CONFIGURATIONS ---
 const LEVELS = [
+    // Level 0: Fish - Top-Down Puzzle
     {
-        // Level 0: Fish - Top-Down Puzzle
         animal: "fish",
         bgColor: "#6695ff",
         barrierSprite: "green_coral",
@@ -91,8 +92,8 @@ const LEVELS = [
             "========================================"
         ]
     },
+    // Level 1: Shark - Top-Down Puzzle
     {
-        // Level 1: Shark - Top-Down Puzzle
         animal: "shark",
         bgColor: "#002a66",
         barrierSprite: "pink_coral",
@@ -133,8 +134,8 @@ const LEVELS = [
             "============================================================",
         ]
     },
+    // Level 2: Lizard - Platformer (Old Fish Puzzle)
     {
-        // Level 2: Lizard - Platformer (Old Fish Puzzle)
         animal: "lizard",
         bgColor: "#2d231e",
         barrierSprite: "cave",
@@ -165,8 +166,8 @@ const LEVELS = [
             "========================================"
         ]
     },
+    // Level 3: dinosaur - Platformer 
     {
-        // Level 3: dinosaur - Platformer 
         animal: "dinosaur",
         bgColor: "#1c1410",
         barrierSprite: "cave",
@@ -193,19 +194,19 @@ const LEVELS = [
         bgColor: "#87ceeb",
         barrierSprite: "grass_block",
         gravity: 600,
-        speed: 150,
-        jumpForce: 300,
+        speed: 100,
+        jumpForce: 255,
         bananasRequired: [1, 1, 1, 1],
         map: [
             "========================================",
-            "=                  ||                  =",
-            "=            k==   ||                  =",
-            "=        k   k   ==||                  =",
-            "=        k    k    ||                  =",
-            "=            3k    ||                  =",
-            "=     ====         ||                  =",
-            "=                  ||                  =",
-            "= P                ||                  =",
+            "=  K2            = ||           1      =",
+            "=  K     k   K==            K ===      =",
+            "=  K     K   K   ==||=      K       == =",
+            "=        K   3K    ||   =         =    =",
+            "=        K    K    ||    = k     =     =",
+            "=      ====        ||      K =         =",
+            "=                  ||      K ===       =",
+            "= P                ||      =   4=      =",
             "========================================"
         ]
     }
@@ -293,6 +294,20 @@ scene("game", (levelIndex = 0) => {
                 "spike"
             ],
 
+            // --- VINES ---
+            "K": () => [
+                sprite("vine", { frame: 1 }),
+                area({ shape: new Rect(vec2(0, 0), 16, 16) }),
+                body({ isStatic: true }),
+                "vine"
+            ],
+            "k": () => [
+                sprite("vine", { frame: 0 }),
+                area({ shape: new Rect(vec2(0, 8), 16, 8) }),
+                body({ isStatic: true }),
+                "vine"
+            ],
+
             // --- COLLECTIBLES ---
             "1": () => [sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
             "2": () => [sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
@@ -324,10 +339,10 @@ scene("game", (levelIndex = 0) => {
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
-        
+
         // Dynamic map-size particle scaling (around ~30 particles per screen)
         const mapScreensArea = (GAME_WIDTH * GAME_HEIGHT) / (VIEW_WIDTH * VIEW_HEIGHT);
-        const particleCount = Math.floor(mapScreensArea * 30); 
+        const particleCount = Math.floor(mapScreensArea * 30);
 
         for (let i = 0; i < particleCount; i++) {
             const p = add([
@@ -349,7 +364,7 @@ scene("game", (levelIndex = 0) => {
                 // Screen/Level wrapping (vertically and horizontally)
                 if (isWaterLevel && p.pos.y < -8) p.pos.y = GAME_HEIGHT + 8;
                 if (isCaveLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
-                
+
                 if (p.pos.x < -8) p.pos.x = GAME_WIDTH + 8;
                 if (p.pos.x > GAME_WIDTH + 8) p.pos.x = -8;
             });
@@ -445,6 +460,21 @@ scene("game", (levelIndex = 0) => {
         return vec2(dx, dy).unit();
     }
 
+    // Configuration variables
+    const CLIMB_SPEED = 120;
+    const SLIDE_SPEED = 5; // How fast they slowly slide down
+    let isTouchingVine = false;
+
+    // 1. Initial Impact: Stop them dead in their tracks
+    player.onCollide("vine", () => {
+        isTouchingVine = true;     // Erase any momentum from falling
+    });
+
+    // 2. Leaving the vine: Restore physics
+    player.onCollideEnd("vine", () => {
+        isTouchingVine = false;
+    });
+
     player.onUpdate(() => {
         updateCamera();
 
@@ -467,11 +497,31 @@ scene("game", (levelIndex = 0) => {
         if (player.pos.y > GAME_HEIGHT + 64) {
             go("lose", "Fell into the abyss!", levelIndex);
         }
+
+        if (isTouchingVine) {
+            if (isKeyDown("up")) {
+                // Climb up
+                player.vel.y = -CLIMB_SPEED;
+            } else if (isKeyDown("down")) {
+                // Climb down faster
+                player.vel.y = CLIMB_SPEED;
+            } else {
+                // Not pressing anything: Slow, controlled slide
+                player.vel.y = SLIDE_SPEED;
+            }
+        }
     });
 
     onKeyPress((k) => {
         if (keys.jump.includes(k) && config.gravity > 0 && player.isGrounded()) {
             player.jump(config.jumpForce);
+        } else if (isTouchingVine) {
+            // Optional: Detach them slightly so they don't immediately re-collide
+            player.gravityScale = 1;
+            isTouchingVine = false;
+
+            // Execute the jump
+            player.jump((config.jumpForce) * 0.5);
         }
     });
 
