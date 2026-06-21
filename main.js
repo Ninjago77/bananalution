@@ -1,3 +1,4 @@
+
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 
 const VIEW_WIDTH = 320;
@@ -498,16 +499,12 @@ scene("game", (levelIndex = 0) => {
     let hasJumpedThisTouch = false;
     let isTouchingVine = false;
 
-    let isHoldingReset = false;
-    let resetTimer = 0;
-    const HOLD_RESET_TIME = 2.5;
-
-    const joyCenter = vec2(35, VIEW_HEIGHT - 35);
+    const joyCenter = vec2(VIEW_WIDTH - 40, VIEW_HEIGHT - 35);
     const joyBaseRadius = 25;
     const joyKnobRadius = 12;
 
     // References for re-creation
-    let joyBase, joyKnob, resetText;
+    let joyBase, joyKnob;
 
     function createJoystickUI() {
         // Delete the old joystick if it exists
@@ -535,15 +532,63 @@ scene("game", (levelIndex = 0) => {
             "joystick_ui"
         ]);
 
-        resetText = add([
-            text("Reset", { size: 6 }),
-            pos(joyCenter),
-            color(0, 0, 0),
+        // Reset Scene Button (Bottom Left)
+        const resetBtn = add([
+            rect(36, 16, { radius: 3 }),
+            pos(25, VIEW_HEIGHT - 15),
+            color(255, 50, 50),
+            opacity(0.8),
             fixed(),
+            area(),
             anchor("center"),
-            z(102),
+            z(100),
             "joystick_ui"
         ]);
+        
+        add([
+            text("Reset", { size: 6 }),
+            pos(25, VIEW_HEIGHT - 15),
+            color(255, 255, 255),
+            fixed(),
+            anchor("center"),
+            z(101),
+            "joystick_ui"
+        ]);
+
+        resetBtn.onClick(() => {
+            go("game", levelIndex);
+        });
+
+        // Rebuild Joystick Button (Bottom Left, beside Reset)
+        const rebuildBtn = add([
+            rect(36, 16, { radius: 3 }),
+            pos(65, VIEW_HEIGHT - 15),
+            color(50, 150, 255),
+            opacity(0.8),
+            fixed(),
+            area(),
+            anchor("center"),
+            z(100),
+            "joystick_ui"
+        ]);
+
+        add([
+            text("Fix Joy", { size: 6 }),
+            pos(65, VIEW_HEIGHT - 15),
+            color(255, 255, 255),
+            fixed(),
+            anchor("center"),
+            z(101),
+            "joystick_ui"
+        ]);
+
+        rebuildBtn.onClick(() => {
+            // using wait(0) delays the function call to the next frame to prevent 
+            // the loop iterating over destroyed component clicks from crashing
+            wait(0, () => {
+                createJoystickUI();
+            });
+        });
 
         // Reset the state to neutral
         resetJoystick();
@@ -552,42 +597,22 @@ scene("game", (levelIndex = 0) => {
     function resetJoystick() {
         if (!joyKnob) return;
         joyKnob.pos = joyCenter;
-        resetText.pos = joyCenter;
         joystickDir = vec2(0, 0);
         joyPointerId = null;
         hasJumpedThisTouch = false;
         joyKnob.color = rgb(255, 255, 255);
-        isHoldingReset = false;
-        resetTimer = 0;
     }
 
     function handlePointerDown(id, screenPos) {
-        // Standard steer grab or hold-reset check
+        // Standard steer grab
         if (screenPos.dist(joyCenter) < joyBaseRadius + 15) {
             joyPointerId = id; // Always accept the click to ensure the joystick doesn't get stuck
-
-            if (screenPos.dist(joyCenter) < joyKnobRadius) {
-                isHoldingReset = true;
-                resetTimer = 0;
-            } else {
-                isHoldingReset = false;
-                resetTimer = 0;
-                updateJoystick(screenPos);
-            }
+            updateJoystick(screenPos);
         }
     }
 
     function handlePointerMove(id, screenPos) {
         if (id === joyPointerId) {
-            if (isHoldingReset) {
-                if (screenPos.dist(joyCenter) >= joyKnobRadius) {
-                    isHoldingReset = false;
-                    resetTimer = 0;
-                    joyKnob.color = rgb(255, 255, 255);
-                } else {
-                    return;
-                }
-            }
             updateJoystick(screenPos);
         }
     }
@@ -607,7 +632,6 @@ scene("game", (levelIndex = 0) => {
 
         const newPos = joyCenter.add(dir.scale(dist));
         joyKnob.pos = newPos;
-        resetText.pos = newPos;
 
         if (dist > 5) {
             joystickDir = dir;
@@ -636,23 +660,6 @@ scene("game", (levelIndex = 0) => {
         // FAIL-SAFE: If the joystick is currently dragged by 'mouse' but the mouse button is no longer pressed, force release
         if (joyPointerId === 'mouse' && !isMouseDown()) {
             resetJoystick();
-        }
-
-        if (isHoldingReset) {
-            resetTimer += dt();
-            const progress = Math.min(resetTimer / HOLD_RESET_TIME, 1);
-
-            // Fade from White to Red
-            const r = 255;
-            const g = 255 * (1 - progress);
-            const b = 255 * (1 - progress);
-            joyKnob.color = rgb(r, g, b);
-
-            if (progress >= 1) {
-                isHoldingReset = false;
-                resetTimer = 0;
-                go("game", levelIndex);
-            }
         }
     });
 
