@@ -110,7 +110,7 @@ const LEVELS = [
         gravity: 0,
         speed: 160,
         jumpForce: 0,
-        bananasRequired: [6, 6, 6, 6], 
+        bananasRequired: [6, 6, 6, 6],
         map: [
             "============================================================",
             "= P        =                 =         ==                  =",
@@ -222,7 +222,7 @@ const LEVELS = [
             "========================================"
         ]
     },
-    //*
+    /*
     {
         animal: "primates",
         bgColor: "#87ceeb",
@@ -244,8 +244,10 @@ const LEVELS = [
             "========================================"
         ]
     }
-    //*/
+    */
 ];
+
+
 
 // --- MAIN GAME SCENE ---
 scene("game", (levelIndex = 0) => {
@@ -370,7 +372,7 @@ scene("game", (levelIndex = 0) => {
         const dirY = isWaterLevel ? -1 : 1;
         const speedRange = isWaterLevel ? [15, 35] : [10, 25];
         const wobbleMult = isWaterLevel ? 2 : 1;
-        const particleCount = 40; 
+        const particleCount = 40;
 
         for (let i = 0; i < particleCount; i++) {
             const p = add([
@@ -474,7 +476,7 @@ scene("game", (levelIndex = 0) => {
             setCamPos(camX, camY);
         }
     }
-    
+
     // Trigger very first screen load immediately
     updateCameraAndMap();
 
@@ -529,7 +531,7 @@ scene("game", (levelIndex = 0) => {
     }
 
     const CLIMB_SPEED = 120;
-    const SLIDE_SPEED = 5; 
+    const SLIDE_SPEED = 5;
     let isTouchingVine = false;
 
     player.onCollide("vine", () => { isTouchingVine = true; });
@@ -696,4 +698,38 @@ scene("win", () => {
     });
 });
 
-go("game", 5);
+loadSprite("start-bkgd", "start-menu-bkgd.png");
+scene("start", () => {
+    add([
+        sprite("start-bkgd"),
+        pos(0, 0),
+        area(),
+    ]);
+
+    const startButton = add([
+        pos(120, 102),
+        rect(80, 35),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "startButton"
+    ]);
+
+    const gitButton = add([
+        pos(160, 148),
+        circle(8),
+        area(),
+        color(255, 255, 255),
+        opacity(0)
+    ]);
+
+    function startGame() { go("game", 0); };
+
+    onKeyPress("enter", startGame);
+    onClick("startButton", startGame);
+    startButton.onTouchStart(startGame);
+
+});
+
+
+go("start");
