@@ -1,3 +1,4 @@
+
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
 
 const VIEW_WIDTH = 320;
@@ -6,6 +7,8 @@ const VIEW_HEIGHT = 160;
 const scaleX = window.innerWidth / VIEW_WIDTH;
 const scaleY = window.innerHeight / VIEW_HEIGHT;
 const dynamicScale = Math.min(scaleX, scaleY);
+
+let colorblind = false;
 
 kaplay({
     width: VIEW_WIDTH,
@@ -22,7 +25,6 @@ const FORM_NAMES = {
     "fish1": "Goldfish", "fish2": "Bass Fish", "fish3": "Powder Blue Fish", "fish4": "Discus Fish",
     "shark1": "Thrasher", "shark2": "Blåhaj", "shark3": "Whale Shark", "shark4": "Hammerhead Shark",
     "lizard1": "Boa", "lizard2": "Chameleon", "lizard3": "Tortoise", "lizard4": "Alligator",
-    "monkey1": "Lemur", "monkey2": "Macaque", "monkey3": "Chimp", "monkey4": "Gorilla",
     "dinosaur1": "Yoshi", "dinosaur2": "Dilophosaurus", "dinosaur3": "Chrome Dino", "dinosaur4": "Orpheus",
     "primates1": "Monkey", "primates2": "Gorilla", "primates3": "Caveman", "primates4": "Hack Clubber"
 };
@@ -31,19 +33,28 @@ const ANIMAL_SIZES = {
     "fish": [1, 1],
     "shark": [2, 1],
     "lizard": [2, 1],
-    "monkey": [1, 2],
     "dinosaur": [1.5, 1.5],
     "primates": [1, 1]
 };
 
-const BANANA_NAMES = {
-    1: "Red Banana", 2: "Orange Banana", 3: "Green Banana", 4: "Blue Banana"
+const BANANA_NAMES1 = {
+    1: "Red Banana", 2: "Orange Banana", 3: "Green Banana", 4: "Blue Banana",
+}
+const BANANA_NAMES2 = {
+    1: "Apple", 2: "Orange", 3: "Pear", 4: "Banana",
 };
 
 // --- SPRITE LOADING ---
 loadSpriteAtlas("bananas.png", Object.fromEntries(
     Array.from({ length: 4 }, (_, i) => [
         `banana${i + 1}`,
+        { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
+    ])
+));
+
+loadSpriteAtlas("bananas2.png", Object.fromEntries(
+    Array.from({ length: 4 }, (_, i) => [
+        `bananaB${i + 1}`,
         { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
     ])
 ));
@@ -110,7 +121,8 @@ const LEVELS = [
         gravity: 0,
         speed: 160,
         jumpForce: 0,
-        bananasRequired: [6, 6, 6, 6],
+        bananasRequired: [2, 2, 2, 2],
+        // bananasRequired: [6, 6, 6, 6],
         map: [
             "============================================================",
             "= P        =                 =         ==                  =",
@@ -137,8 +149,8 @@ const LEVELS = [
             "=  21                        =   ======================    =",
             "=  1                                                       =",
             "========          =              ========   ============   =",
-            "=                 =  ==========        ==   =              =",
-            "=   ===============  = 3      =======  ==   =   =======    =",
+            "=                 =   =========        ==   =              =",
+            "=   ===============   =3      =======  ==   =   =======    =",
             "=   =                2        =     =  ==   =   = 4 1 =    =",
             "=   =  ===============        =  =  =  ==   =   =          =",
             "=   =                ==========  =  =  ==   =   =======    =",
@@ -161,10 +173,10 @@ const LEVELS = [
             "=                  ||                  =",
             "=  1P  2    2       4                  =",
             "=  ====            ||         =====    =",
-            "=            =     ||           3      =",
-            "=    ===   3    1  ||    ====          =",
+            "=            ==    ||            3     =",
+            "=    ===   3    1  ||      ==          =",
             "=  3               ||                  =",
-            "=         ===               == 2       =",
+            "=         ===                = 2       =",
             "=                                      =",
             "=======================   ==============",
             "=======================   ==============",
@@ -208,43 +220,30 @@ const LEVELS = [
         gravity: 600,
         speed: 100,
         jumpForce: 255,
-        bananasRequired: [1, 1, 1, 1],
+        bananasRequired: [1, 2, 2, 2],
         map: [
             "========================================",
             "=  K2            = ||          1       =",
-            "=  K     k   K==            K ===      =",
+            "=  K     K   K==            K ===      =",
             "=  K     K   K   ==||=      K       == =",
             "=        K   3K    ||   =         =    =",
             "=        K    K    ||    = k     =     =",
             "=      ====        ||      K =         =",
             "=                  ||      K ===       =",
             "= P                ||      =   4=      =",
-            "========================================"
-        ]
-    },
-    /*
-    {
-        animal: "primates",
-        bgColor: "#87ceeb",
-        barrierSprite: "grass_block",
-        gravity: 600,
-        speed: 100,
-        jumpForce: 255,
-        bananasRequired: [1, 1, 1, 1],
-        map: [
-            "========================================",
-            "=  K             = ||                  =",
-            "=  K     k   K==            K ===      =",
-            "=  K     K   K   ==||=      K       == =",
-            "=        K    K    ||   =         =    =",
-            "=        K    K    ||    = k     =     =",
-            "=      ====        ||      K =         =",
-            "=                  ||      K ===       =",
-            "= P   1  2  3  4   ||      =    =      =",
+            "=================================k  ====",
+            "                    =============K  ====",
+            "                    |    K     3 K     =",
+            "                    |    K     ==K     =",
+            "                    |=   k    =     = k=",
+            "                    | ===K       4==  K=",
+            "                    |    K       =    K=",
+            "                    |       K=        K=",
+            "                    |        ===       =",
+            "                    |      =   2=      =",
             "========================================"
         ]
     }
-    */
 ];
 
 
@@ -265,10 +264,8 @@ scene("game", (levelIndex = 0) => {
     let bananasEaten = 0;
 
     // --- MUTABLE LOCAL MAP STATE ---
-    // We clone the map into a 2D array. When bananas are eaten, we erase them from this array.
     let currentMapState = config.map.map(row => row.split(""));
 
-    // We no longer use Kaplay's `offscreen` or `addLevel` feature at all!
     const levelConfig = {
         tileWidth: 16,
         tileHeight: 16,
@@ -304,10 +301,10 @@ scene("game", (levelIndex = 0) => {
             "K": () => [sprite("vine", { frame: 1 }), area({ shape: new Rect(vec2(0, 0), 16, 16) }), body({ isStatic: true }), "vine"],
             "k": () => [sprite("vine", { frame: 0 }), area({ shape: new Rect(vec2(0, 8), 16, 8) }), body({ isStatic: true }), "vine"],
             // Collectibles
-            "1": () => [sprite("banana1", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
-            "2": () => [sprite("banana2", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
-            "3": () => [sprite("banana3", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
-            "4": () => [sprite("banana4", { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }]
+            "1": () => [sprite(`banana${colorblind ? "B" : ""}1`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 1 }],
+            "2": () => [sprite(`banana${colorblind ? "B" : ""}2`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 2 }],
+            "3": () => [sprite(`banana${colorblind ? "B" : ""}3`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 3 }],
+            "4": () => [sprite(`banana${colorblind ? "B" : ""}4`, { anim: "idle" }), area({ shape: new Rect(vec2(1, 1), 14, 14) }), "banana", { bType: 4 }]
         }
     };
 
@@ -317,7 +314,7 @@ scene("game", (levelIndex = 0) => {
         const x = currentMapState[y].indexOf("P");
         if (x !== -1) {
             playerStartPos = vec2(x * 16, y * 16);
-            currentMapState[y][x] = " "; // Erase spawn point from map state so it's clean
+            currentMapState[y][x] = " ";
             break;
         }
     }
@@ -327,11 +324,8 @@ scene("game", (levelIndex = 0) => {
     let currentQuadY = -1;
 
     function loadQuadrant(qX, qY) {
-        // 1. Wipe all previous geometry cleanly
         destroyAll("map_object");
 
-        // 2. We load the current 20x10 tile camera view PLUS a 2-tile margin around it.
-        // This margin ensures players won't fall through the floor on the exact frame the camera shifts!
         const margin = 2;
         const startCol = Math.max(0, (qX * 20) - margin);
         const endCol = Math.min(currentMapState[0].length, (qX * 20) + 20 + margin);
@@ -345,9 +339,8 @@ scene("game", (levelIndex = 0) => {
                 if (levelConfig.tiles[tileChar]) {
                     const comps = levelConfig.tiles[tileChar]();
                     comps.push(pos(x * 16, y * 16));
-                    comps.push("map_object"); // Tagged to easily destroy on the next transition
+                    comps.push("map_object");
 
-                    // Embed grid coords so eaten bananas can erase themselves from currentMapState
                     if (comps.includes("banana")) {
                         const dataComp = comps.find(c => c && c.bType !== undefined);
                         if (dataComp) {
@@ -362,7 +355,7 @@ scene("game", (levelIndex = 0) => {
         }
     }
 
-    // --- PARTICLES (Unchanged: Warps dynamically based on camera) ---
+    // --- PARTICLES ---
     const isWaterLevel = config.animal === "fish" || config.animal === "shark";
     const isCaveLevel = config.animal === "lizard" || config.animal === "dinosaur";
     const isGreenLevel = config.animal === "primates";
@@ -397,7 +390,6 @@ scene("game", (levelIndex = 0) => {
                 const cam = camPos();
                 const halfW = (VIEW_WIDTH / 2) + 32;
                 const halfH = (VIEW_HEIGHT / 2) + 32;
-                // Screen/Level wrapping (vertically and horizontally)
                 if (isWaterLevel && p.pos.y < -8) p.pos.y = GAME_HEIGHT + 8;
                 if (isCaveLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
                 if (isGreenLevel && p.pos.y > GAME_HEIGHT + 8) p.pos.y = -8;
@@ -427,7 +419,7 @@ scene("game", (levelIndex = 0) => {
             )
         }),
         body(),
-        z(10), // Ensures the player will render slightly above level geometry & particles
+        z(10),
         {
             isFrozen: false
         },
@@ -435,19 +427,16 @@ scene("game", (levelIndex = 0) => {
     ]);
 
     function spawnEffect(spawnPosition) {
-        // 1. Create the effect object at the target position
         const fx = add([
             sprite("morph"),
             pos(spawnPosition),
-            anchor("topleft"), // Centers the sprite on the player's coordinates
+            anchor("topleft"),
             z(15),
         ]);
 
         player.isFrozen = true;
-        // 2. Play the animation
         fx.play("boom");
 
-        // 3. Destroy the object the exact frame the animation finishes
         fx.onAnimEnd((anim) => {
             if (anim === "boom") {
                 destroy(fx);
@@ -467,10 +456,8 @@ scene("game", (levelIndex = 0) => {
             currentQuadX = newQuadX;
             currentQuadY = newQuadY;
 
-            // Render only the current screen and completely destroy the old ones
             loadQuadrant(currentQuadX, currentQuadY);
 
-            // Shift camera
             const camX = (currentQuadX * VIEW_WIDTH) + (VIEW_WIDTH / 2);
             const camY = (currentQuadY * VIEW_HEIGHT) + (VIEW_HEIGHT / 2);
             setCamPos(camX, camY);
@@ -501,10 +488,194 @@ scene("game", (levelIndex = 0) => {
     function updateUI() {
         const required = config.bananasRequired[currentForm - 1] - bananasEaten;
         const currentName = FORM_NAMES[`${config.animal}${currentForm}`] || `${config.animal} ${currentForm}`;
-        const bananaName = BANANA_NAMES[currentForm] || `Banana ${currentForm}`;
+        const bananaName = (colorblind ? BANANA_NAMES2 : BANANA_NAMES1)[currentForm] || `${colorblind ? "Fruit" : "Banana"} ${currentForm}`;
         uiText.text = `Form: ${currentName}\nNeed: ${required}x ${bananaName}`;
     }
     updateUI();
+
+    // --- MOUSE & TOUCH JOYSTICK LOGIC ---
+    let joystickDir = vec2(0, 0);
+    let joyPointerId = null;
+    let hasJumpedThisTouch = false;
+    let isTouchingVine = false;
+
+    const joyCenter = vec2(VIEW_WIDTH - 40, VIEW_HEIGHT - 35);
+    const joyBaseRadius = 25;
+    const joyKnobRadius = 12;
+
+    // References for re-creation
+    let joyBase, joyKnob;
+
+    function createJoystickUI() {
+        // Delete the old joystick if it exists
+        destroyAll("joystick_ui");
+
+        joyBase = add([
+            circle(joyBaseRadius),
+            pos(joyCenter),
+            color(255, 255, 255),
+            opacity(0.3),
+            fixed(),
+            anchor("center"),
+            z(100),
+            "joystick_ui"
+        ]);
+
+        joyKnob = add([
+            circle(joyKnobRadius),
+            pos(joyCenter),
+            color(255, 255, 255),
+            opacity(0.8),
+            fixed(),
+            anchor("center"),
+            z(101),
+            "joystick_ui"
+        ]);
+
+        // Reset Scene Button (Bottom Left)
+        const resetBtn = add([
+            rect(36, 16, { radius: 3 }),
+            pos(25, VIEW_HEIGHT - 15),
+            color(255, 50, 50),
+            opacity(0.8),
+            fixed(),
+            area(),
+            anchor("center"),
+            z(100),
+            "joystick_ui"
+        ]);
+        
+        add([
+            text("Reset", { size: 6 }),
+            pos(25, VIEW_HEIGHT - 15),
+            color(255, 255, 255),
+            fixed(),
+            anchor("center"),
+            z(101),
+            "joystick_ui"
+        ]);
+
+        resetBtn.onClick(() => {
+            go("game", levelIndex);
+        });
+
+        // Rebuild Joystick Button (Bottom Left, beside Reset)
+        const rebuildBtn = add([
+            rect(36, 16, { radius: 3 }),
+            pos(65, VIEW_HEIGHT - 15),
+            color(50, 150, 255),
+            opacity(0.8),
+            fixed(),
+            area(),
+            anchor("center"),
+            z(100),
+            "joystick_ui"
+        ]);
+
+        add([
+            text("Fix Joy", { size: 6 }),
+            pos(65, VIEW_HEIGHT - 15),
+            color(255, 255, 255),
+            fixed(),
+            anchor("center"),
+            z(101),
+            "joystick_ui"
+        ]);
+
+        rebuildBtn.onClick(() => {
+            // using wait(0) delays the function call to the next frame to prevent 
+            // the loop iterating over destroyed component clicks from crashing
+            wait(0, () => {
+                createJoystickUI();
+            });
+        });
+
+        // Reset the state to neutral
+        resetJoystick();
+    }
+
+    function resetJoystick() {
+        if (!joyKnob) return;
+        joyKnob.pos = joyCenter;
+        joystickDir = vec2(0, 0);
+        joyPointerId = null;
+        hasJumpedThisTouch = false;
+        joyKnob.color = rgb(255, 255, 255);
+    }
+
+    function handlePointerDown(id, screenPos) {
+        // Standard steer grab
+        if (screenPos.dist(joyCenter) < joyBaseRadius + 15) {
+            joyPointerId = id; // Always accept the click to ensure the joystick doesn't get stuck
+            updateJoystick(screenPos);
+        }
+    }
+
+    function handlePointerMove(id, screenPos) {
+        if (id === joyPointerId) {
+            updateJoystick(screenPos);
+        }
+    }
+
+    function handlePointerUp(id) {
+        if (id === joyPointerId) {
+            resetJoystick();
+        }
+    }
+
+    function updateJoystick(screenPos) {
+        if (!joyKnob) return;
+        let dist = screenPos.dist(joyCenter);
+        let dir = screenPos.sub(joyCenter).unit();
+
+        if (dist > joyBaseRadius) dist = joyBaseRadius;
+
+        const newPos = joyCenter.add(dir.scale(dist));
+        joyKnob.pos = newPos;
+
+        if (dist > 5) {
+            joystickDir = dir;
+
+            if (config.gravity > 0 && dir.y < -0.6 && !hasJumpedThisTouch) {
+                if (player.isGrounded()) {
+                    player.jump(config.jumpForce);
+                    hasJumpedThisTouch = true;
+                } else if (isTouchingVine) {
+                    player.gravityScale = 1;
+                    isTouchingVine = false;
+                    player.jump(config.jumpForce * 0.5);
+                    hasJumpedThisTouch = true;
+                }
+            } else if (dir.y >= -0.6) {
+                hasJumpedThisTouch = false;
+            }
+        } else {
+            joystickDir = vec2(0, 0);
+        }
+    }
+
+    onUpdate(() => {
+        if (!joyKnob) return;
+
+        // FAIL-SAFE: If the joystick is currently dragged by 'mouse' but the mouse button is no longer pressed, force release
+        if (joyPointerId === 'mouse' && !isMouseDown()) {
+            resetJoystick();
+        }
+    });
+
+    // Initial Camera/Map/Joystick setup
+    createJoystickUI();
+    updateCameraAndMap();
+
+    // Touch API Bindings
+    onTouchStart((id, pos) => handlePointerDown(id, toScreen(pos)));
+    onTouchMove((id, pos) => handlePointerMove(id, toScreen(pos)));
+    onTouchEnd((id) => handlePointerUp(id));
+
+    // Mouse API Bindings (Direct and completely clean)
+    onMouseDown(() => handlePointerDown('mouse', toScreen(mousePos())));
+    onMouseMove(() => handlePointerMove('mouse', toScreen(mousePos())));
+    onMouseRelease(() => handlePointerUp('mouse'));
 
     // --- CONTROLS & PHYSICS ---
     const keys = {
@@ -521,24 +692,38 @@ scene("game", (levelIndex = 0) => {
         }
         let dx = 0;
         let dy = 0;
+
+        // Keyboard mapping
         if (keys.left.some(k => isKeyDown(k))) dx -= 1;
         if (keys.right.some(k => isKeyDown(k))) dx += 1;
         if (config.gravity === 0) {
             if (keys.up.some(k => isKeyDown(k))) dy -= 1;
             if (keys.down.some(k => isKeyDown(k))) dy += 1;
         }
+
+        // Joystick mapping (rigid WASD digital parsing as requested)
+        if (joystickDir.x < -0.3) dx -= 1;
+        if (joystickDir.x > 0.3) dx += 1;
+        if (config.gravity === 0) {
+            if (joystickDir.y < -0.3) dy -= 1;
+            if (joystickDir.y > 0.3) dy += 1;
+        }
+
+        // Clamping to strictly output standardized cardinal vectors
+        dx = Math.max(-1, Math.min(1, dx));
+        dy = Math.max(-1, Math.min(1, dy));
+
         return vec2(dx, dy).unit();
     }
 
     const CLIMB_SPEED = 120;
     const SLIDE_SPEED = 5;
-    let isTouchingVine = false;
 
     player.onCollide("vine", () => { isTouchingVine = true; });
     player.onCollideEnd("vine", () => { isTouchingVine = false; });
 
     player.onUpdate(() => {
-        updateCameraAndMap(); // Re-evaluates chunks constantly
+        updateCameraAndMap();
 
         const dir = getInputDirection();
         if (dir.x !== 0 || dir.y !== 0) {
@@ -551,8 +736,8 @@ scene("game", (levelIndex = 0) => {
         if (player.pos.y > GAME_HEIGHT + 64) go("lose", "Fell into the abyss!", levelIndex);
 
         if (isTouchingVine) {
-            if (isKeyDown("up")) player.vel.y = -CLIMB_SPEED;
-            else if (isKeyDown("down")) player.vel.y = CLIMB_SPEED;
+            if (isKeyDown("up") || joystickDir.y < -0.3) player.vel.y = -CLIMB_SPEED;
+            else if (isKeyDown("down") || joystickDir.y > 0.3) player.vel.y = CLIMB_SPEED;
             else player.vel.y = SLIDE_SPEED;
         }
     });
@@ -570,15 +755,15 @@ scene("game", (levelIndex = 0) => {
         }
     });
 
-    onKeyPress("p", () => debug.inspect = !debug.inspect);
+    onKeyPress("q", () => debug.inspect = !debug.inspect);
     onKeyPress("enter", () => go("game", levelIndex));
+
 
     // --- HAZARDS & EVOLUTION ---
     player.onCollide("spike", () => { go("lose", "Impaled on a spike!", levelIndex); });
 
     player.onCollide("banana", (banana) => {
         if (banana.bType === currentForm) {
-            // Delete banana from our local map state, so it won't reload if we revisit this screen chunk
             if (banana.gridX !== undefined && banana.gridY !== undefined) {
                 currentMapState[banana.gridY][banana.gridX] = " ";
             }
@@ -587,7 +772,7 @@ scene("game", (levelIndex = 0) => {
             bananasEaten++;
 
             if (bananasEaten >= config.bananasRequired[currentForm - 1]) {
-                bananasEaten = 0;  // reset for next form
+                bananasEaten = 0;
 
                 currentForm++;
                 spawnEffect(player.pos);
@@ -633,7 +818,7 @@ scene("win", () => {
             opacity(0),
         ]);
 
-        // 2. Title Text (CRITICAL: Added opacity component, removed color(0,0,0) so it's readable)
+        // 2. Title Text
         const title = add([
             text("You completed...", {
                 size: 8,
@@ -641,8 +826,8 @@ scene("win", () => {
             }),
             pos(VIEW_WIDTH / 2, VIEW_HEIGHT / 2 + 8),
             anchor("center"),
-            opacity(0), // Text needs this component to fade!
-            color(0, 0, 0), // If your background box is white, black text works great
+            opacity(0),
+            color(0, 0, 0),
             z(5),
         ]);
 
@@ -654,17 +839,17 @@ scene("win", () => {
             pos(title.pos),
             anchor("center"),
             color(255, 255, 255),
-            opacity(0), // Start at 0 so it fades with text
+            opacity(0),
             z(1),
         ]);
 
-        // 4. Logo Sprite (CRITICAL: Added explicit color(255,255,255) to prevent tinting bugs)
+        // 4. Logo Sprite
         const logo = add([
             sprite("logo"),
             pos(center().x, center().y + 48),
             anchor("center"),
-            color(255, 255, 255), // Keeps original PNG file colors intact!
-            scale(2),            // <-- Doubles the width and height of the sprite
+            color(255, 255, 255),
+            scale(2),
             opacity(0),
             z(20),
             {
@@ -673,12 +858,11 @@ scene("win", () => {
             }
         ]);
 
-        // Global Fade-In Controller Loop (Moved below variable declarations)
+        // Global Fade-In Controller Loop
         onUpdate(() => {
             bg.opacity = Math.min(bg.opacity + dt() * 0.5, 1);
             title.opacity = Math.min(title.opacity + dt() * 0.5, 1);
 
-            // Match box frame transparency perfectly to the text wrapper
             box.opacity = Math.min(title.opacity * 0.9, 0.9);
         });
 
@@ -698,6 +882,44 @@ scene("win", () => {
     });
 });
 
+loadSprite("help-menu", "help-menu.png");
+scene("help", () => {
+    add([
+        sprite("help-menu"),
+        pos(0, 0),
+        area(),
+        "help-menu",
+        z(1)
+    ]);
+
+    add([
+        rect(18, 18),
+        color(255, 255, 255),
+        pos(259, 11),
+        opacity(0),
+        area(),
+        "close-help",
+        z(2)
+    ]);
+
+    add([
+        rect(18, 18),
+        color(255, 255, 255),
+        pos(259, 110),
+        opacity(0),
+        area(),
+        "continue-help",
+        z(2)
+    ]);
+
+    function startGame() { go("game", 0); };
+
+    onClick("close-help", () => { go("start"); });
+
+    onKeyPress("enter", startGame);
+    onClick("continue-help", startGame);
+});
+
 loadSprite("start-bkgd", "start-menu-bkgd.png");
 scene("start", () => {
     add([
@@ -707,7 +929,7 @@ scene("start", () => {
     ]);
 
     const startButton = add([
-        pos(120, 102),
+        pos(75, 102),
         rect(80, 35),
         area(),
         color(255, 255, 255),
@@ -715,19 +937,52 @@ scene("start", () => {
         "startButton"
     ]);
 
+    const colorblindStartButton = add([
+        pos(165, 102),
+        rect(80, 35),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "colorblindStartButton"
+    ]);
+
     const gitButton = add([
-        pos(160, 148),
+        pos(146, 146),
         circle(8),
         area(),
         color(255, 255, 255),
-        opacity(0)
+        opacity(0),
+        "gitButton"
     ]);
 
-    function startGame() { go("game", 0); };
+    const helpButton = add([
+        pos(172, 146),
+        circle(9),
+        area(),
+        color(255, 255, 255),
+        opacity(0),
+        "helpButton"
+    ]);
 
-    onKeyPress("enter", startGame);
-    onClick("startButton", startGame);
-    startButton.onTouchStart(startGame);
+    function startHelp() { go("help"); };
+
+    onClick("startButton", () => { colorblind = false; startHelp(); });
+
+    onClick("colorblindStartButton", () => { colorblind = true; startHelp(); });
+
+    onKeyPress("i", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+    onClick("gitButton", () => {
+        window.open("https://github.com/Ninjago77/bananalution", "_blank")
+    });
+
+    onKeyPress("p", () => {
+        go("help");
+    });
+    onClick("helpButton", () => {
+        go("help");
+    });
 
 });
 
