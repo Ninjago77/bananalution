@@ -39,7 +39,7 @@ const ANIMAL_SIZES = {
 loadSpriteAtlas("bananas.png", Object.fromEntries(
     Array.from({ length: 4 }, (_, i) => [
         `banana${i + 1}`, 
-        { x: 0, y: i * 16, width: 32, height: 16, sliceX: 2, anims: { idle: { from: 0, to: 1, loop: true, speed: 4 } } }
+        { y: 0, x: i * 16, width: 16, height: 64, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
     ])
 ));
 
@@ -50,7 +50,7 @@ Object.entries(ANIMAL_SIZES).forEach(([name, [wMult, hMult]]) => {
     loadSpriteAtlas(`${name}.png`, Object.fromEntries(
         Array.from({ length: 4 }, (_, i) => [
             `${name}${i + 1}`, 
-            { x: i * sliceWidth, y: 0, width: sliceWidth, height: sliceHeight, sliceX: 1, anims: { idle: { from: 0, to: 0, loop: true, speed: 4 } } }
+            { x: i * sliceWidth, y: 0, width: sliceWidth, height: sliceHeight*4, sliceY: 4, anims: { idle: { from: 0, to: 3, loop: true, speed: 4 } } }
         ])
     ));
 });
@@ -170,13 +170,12 @@ scene("game", (levelIndex = 0) => {
     // Create the player at the calculated position
     const [wMult, hMult] = ANIMAL_SIZES[config.animal] || [1, 1];
     const player = add([
-        sprite(`${config.animal}${currentForm}`),
+        sprite(`${config.animal}${currentForm}`, { anim: "idle" }), // Added { anim: "idle" }
         pos(playerStartPos), 
         area({ shape: new Rect(vec2(.8,.9), (wMult * 16) - 2, (hMult * 16) - 2) }),
         body(),
         "player"
     ]);
-
     // Keep track of the camera so we aren't firing the setter 60 frames a second
     let lastCamX = null;
     let lastCamY = null;
@@ -272,7 +271,7 @@ scene("game", (levelIndex = 0) => {
                 if (currentForm > 4) {
                     go("game", levelIndex + 1); 
                 } else {
-                    player.use(sprite(`${config.animal}${currentForm}`));
+                    player.use(sprite(`${config.animal}${currentForm}`, { anim: "idle" })); // Added { anim: "idle" }
                 }
             }
             updateUI();
@@ -307,5 +306,6 @@ scene("win", () => {
         color(50, 255, 50)
     ]);
 });
+
 
 go("game", 0);
