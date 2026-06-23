@@ -1008,4 +1008,4 @@ scene("start", () => {
 
 
 // go("start");
-go("game", 3);
+go("game", 0);
