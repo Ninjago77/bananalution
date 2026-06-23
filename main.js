@@ -1007,5 +1007,4 @@ scene("start", () => {
 });
 
 
-// go("start");
-go("game", 0);
+go("start");
