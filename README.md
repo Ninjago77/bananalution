@@ -78,7 +78,7 @@ Different organisms will have different movement mechanics, such as swimming, sw
 - KiCad (PCB for Hardware)
 - VS Code (IDE)
 - Aseprite (Art)
-- ChatGPT / Gemini (Programming)
+- ChatGPT / Gemini (Help with Code Generation)
 
 ## How to Run the Game
 Option 1 **RECOMMENDED**: Use the site above.
