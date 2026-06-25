@@ -62,13 +62,23 @@ PCB Controller CAD (files to be uploaded later after improvements)
 
 
 
-## Motivation:
+## Motivation
 Our theme cards drawn for the Horizons Nexus hackathon were the Joker (Wild Card), Fish, Banana, Order, and Morph.
 What better way to demonstrate these cards than through the evolution of organisms of the earth! Introducing Bananlution
 We wanted to make a game as it would be an engaging project that people could enjoy. 
 To integrate these themes, we decided to make a platformer game where you begin as a FISH, eating BANANAS in a specified ORDER to MORPH into more evolutionarily advanced organisms. It's just like evolution in the real world! (*trust*)
 Different organisms will have different movement mechanics, such as swimming, swinging, crawling, and jumping. 
 
+## Tech Stack
+- HTML5
+- CSS
+- JavaScript
+  - KaPlay.js (Game Library)
+- Python (Hardware Programming)
+- KiCad (PCB for Hardware)
+- VS Code (IDE)
+- Aseprite (Art)
+- ChatGPT / Gemini (Programming)
 
 ## How to Run the Game
 Option 1 **RECOMMENDED**: Use the site above.
@@ -97,4 +107,4 @@ Maneesh G
 
 Outside Assets Used: A custom fork (Animated by Ayush) of : https://pixelgnome.itch.io/fish
 
-###### This project was made for the Hack Club Horizons Nexus Hackathon.
+###### This project was made for Hack Club Horizons.
