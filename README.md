@@ -88,7 +88,13 @@ Option 2: Clone the repository, and make sure Node.js is installed. Then run the
 `npx http-server -c-1`
 
 
-
+## Post Hackathon (Shipped to Nexus) Edits
+*Nearly a month after the hackathon*
+ - Level 4 Dinos is playable & not softlocked anymore.
+ - Redesigned Level 3 & 6.
+ - Fixed Glitch in Level 2, where if the shark was held too long it would fly off the screen & show up outside the puzzle (because it was 2 blocks long & the walls were one block thick)
+ - Reduced lagginess (for some computers by not rendering all the entities at once & only the ones on screen)
+ - Made bananas stay present in their location after laginess fix by storing them seperately
 
 ## Credits
 **Programming**: 
